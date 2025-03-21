@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include "JacksOrBetter.hpp"
 
-int main()
-{
-    
+int main() {
+    JacksOrBetter game;
+    game.run();
 }
