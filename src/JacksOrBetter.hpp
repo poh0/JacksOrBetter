@@ -3,8 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Config.hpp"
 #include "ResourceManager.hpp"
-#include "Card.hpp"
-
+#include "Deck.hpp"
 
 class JacksOrBetter {
 public:
@@ -15,6 +14,9 @@ public:
     void run();
 
 private:
+
+    Deck deck;
+
     void processEvents();
     void update();
     void render();

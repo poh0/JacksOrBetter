@@ -1,7 +1,5 @@
 #include "Card.hpp"
 
-
-
 Card::Card(CardValue _val, Suit _suit, bool _facedown, sf::Texture& texture)
     :   mSuit(_suit), mValue(_val), mFaceDown(_facedown),
         mSprite(sf::Sprite(texture, (_facedown) ? getCardBackTextureRect() : getCardTextureRect(_val, _suit)))
@@ -25,6 +23,11 @@ CardValue Card::getValue() const
 void Card::draw(sf::RenderWindow &window)
 {
     window.draw(mSprite);
+}
+
+sf::Sprite &Card::getSprite()
+{
+    return mSprite;
 }
 
 sf::IntRect Card::getCardTextureRect(CardValue value, Suit suit)

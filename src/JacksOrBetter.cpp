@@ -10,6 +10,7 @@ JacksOrBetter::JacksOrBetter()
     ),
     backgroundSprite(sf::Sprite(ResourceManager::getInstance().getTexture("background")))
 {
+    window.setFramerateLimit(Config::FRAMERATE_LIMIT);
     // backgroundTexture = sf::Texture("res/background.jpg");
     // backgroundSprite = sf::Sprite(backgroundTexture);
 

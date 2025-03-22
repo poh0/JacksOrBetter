@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "JacksOrBetter.hpp"
+#include "ResourceManager.hpp"
+#include "Config.hpp"
 
 enum class CardValue {
     Two = 2,
@@ -36,6 +37,8 @@ public:
     CardValue getValue() const;
 
     void draw(sf::RenderWindow& window);
+
+    sf::Sprite& getSprite();
 
     // Static functions to get the card texture rectangle from sprite sheet
     static sf::IntRect getCardTextureRect(CardValue value, Suit suit);
