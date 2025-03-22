@@ -21,6 +21,10 @@ FetchContent_MakeAvailable(SFML)
 set(SOURCES
     src/main.cpp
     src/JacksOrBetter.cpp
+    src/Card.cpp
+    src/Deck.cpp
+    src/ResourceManager.cpp
+    src/HandEvaluator.cpp
 )
 add_executable(JacksOrBetter ${SOURCES})
 

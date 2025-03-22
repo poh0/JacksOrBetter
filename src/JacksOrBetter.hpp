@@ -1,6 +1,10 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "Config.hpp"
+#include "ResourceManager.hpp"
+#include "Card.hpp"
+
 
 class JacksOrBetter {
 public:

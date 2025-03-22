@@ -1,12 +1,20 @@
 #include "JacksOrBetter.hpp"
+#include "ResourceManager.hpp"
 #include <iostream>
 
 JacksOrBetter::JacksOrBetter() 
-    : window(sf::VideoMode({1280, 720}), "Jacks Or Better", sf::Style::Titlebar | sf::Style::Close),
-    backgroundSprite(backgroundTexture)
+    : window(
+        sf::VideoMode({Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT}), 
+        "Jacks Or Better",
+        (sf::Style::Titlebar | sf::Style::Close)
+    ),
+    backgroundSprite(sf::Sprite(ResourceManager::getInstance().getTexture("background")))
 {
-    backgroundTexture = sf::Texture("res/background.jpg");
-    backgroundSprite = sf::Sprite(backgroundTexture);
+    // backgroundTexture = sf::Texture("res/background.jpg");
+    // backgroundSprite = sf::Sprite(backgroundTexture);
+
+    // load spritesheet of cards
+    //cardSheetTexture = sf::Texture("res/card_sheet.png");
 
     // resizeBackground(); // Scale on startup
 }
