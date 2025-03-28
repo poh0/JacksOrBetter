@@ -1,9 +1,12 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <vector>
+
 #include "Config.hpp"
 #include "ResourceManager.hpp"
-#include "Deck.hpp"
+#include "Game.hpp"
+#include "AnimationManager.hpp"
 
 class JacksOrBetter {
 public:
@@ -14,15 +17,18 @@ public:
     void run();
 
 private:
-
-    Deck deck;
-
     void processEvents();
-    void update();
+    void update(float deltatime);
     void render();
     //void resizeBackground();
-
+    
     sf::RenderWindow window {};
     sf::Sprite backgroundSprite;
-    sf::Texture backgroundTexture {};
+
+    sf::Text pressAnyKeyText;
+
+    Game mGame;
+
+    AnimationManager mAnimationManager;
+
 };

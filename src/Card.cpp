@@ -1,14 +1,14 @@
 #include "Card.hpp"
 
 Card::Card(CardValue _val, Suit _suit, bool _facedown, sf::Texture& texture)
-    :   mSuit(_suit), mValue(_val), mFaceDown(_facedown),
-        mSprite(sf::Sprite(texture, (_facedown) ? getCardBackTextureRect() : getCardTextureRect(_val, _suit)))
-        // ^^^^^^ if card is face down, we get the card back from spritesheet, and if not, we get the front ^^^^^^^
+    :   mSuit(_suit), mValue(_val), mFaceDown(_facedown)
 {
-
+    mSprite = std::make_unique<sw::Sprite3d>(texture, getCardTextureRect(_val, _suit), texture, getCardBackTextureOffset());
+    mSprite->setOrigin(mSprite->getGlobalBounds().getCenter());
+    if (_facedown) { mSprite->setYaw(180.0f); }
 }
 
-Card::Card() : mSprite(sf::Sprite(ResourceManager::getInstance().getTexture("cards"), getCardTextureRect(CardValue::Ace, Suit::Hearts))) {}
+Card::Card() : mSprite(std::make_unique<sw::Sprite3d>(ResourceManager::getInstance().getTexture("cards"), getCardTextureRect(CardValue::Ace, Suit::Hearts))) {}
 
 Suit Card::getSuit() const
 {
@@ -22,14 +22,13 @@ CardValue Card::getValue() const
 
 void Card::draw(sf::RenderWindow &window)
 {
-    window.draw(mSprite);
+    window.draw(*mSprite);
 }
 
-sf::Sprite &Card::getSprite()
+sw::Sprite3d &Card::getSprite()
 {
-    return mSprite;
+    return *mSprite;
 }
-
 sf::IntRect Card::getCardTextureRect(CardValue value, Suit suit)
 {
     using namespace Config;
@@ -48,10 +47,9 @@ sf::IntRect Card::getCardTextureRect(CardValue value, Suit suit)
     }
 }
 
-sf::IntRect Card::getCardBackTextureRect()
+const sf::Vector2i Card::getCardBackTextureOffset()
 {
-    return sf::IntRect(
-        {13 * Config::CARD_WIDTH, 4 * Config::CARD_HEIGHT},
-        {Config::CARD_WIDTH, Config::CARD_HEIGHT}
+    return sf::Vector2i(
+        {0, 4 * Config::CARD_HEIGHT}
     );
 }

@@ -14,4 +14,9 @@ namespace Config {
 
     //offsets
     constexpr float HAND_X_OFFSET = 150.0f;
+    constexpr float DECK_STACK_Y_OFFSET = 2.0f;
+    constexpr float DECK_STACK_X_OFFSET = 2.0f;
+
+    constexpr int DECK_YPOS = 200;
+    constexpr int DECK_XPOS = 300;
 }

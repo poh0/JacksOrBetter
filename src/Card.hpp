@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <SFML/Graphics.hpp>
+#include <SelbaWard/Sprite3d.hpp>
+
 #include "ResourceManager.hpp"
 #include "Config.hpp"
 
@@ -38,11 +42,11 @@ public:
 
     void draw(sf::RenderWindow& window);
 
-    sf::Sprite& getSprite();
+    sw::Sprite3d& getSprite();
 
     // Static functions to get the card texture rectangle from sprite sheet
     static sf::IntRect getCardTextureRect(CardValue value, Suit suit);
-    static sf::IntRect getCardBackTextureRect();
+    static const sf::Vector2i getCardBackTextureOffset();
 
 private:
     // Suit of this card
@@ -53,6 +57,5 @@ private:
 
     bool mFaceDown;
 
-    sf::Sprite mSprite;
-
+    std::unique_ptr<sw::Sprite3d> mSprite;
 };
