@@ -40,6 +40,7 @@ set(SOURCES
     src/Hand.cpp
     src/Animation.cpp
     src/AnimationManager.cpp
+    src/MoveBehavior.cpp
 )
 add_executable(JacksOrBetter ${SOURCES})
 

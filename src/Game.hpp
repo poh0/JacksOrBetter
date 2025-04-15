@@ -6,6 +6,7 @@
 #include "Hand.hpp"
 #include "Config.hpp"
 #include "AnimationManager.hpp"
+#include "MoveBehavior.hpp"
 
 enum class GameState {
     WaitingToStart,

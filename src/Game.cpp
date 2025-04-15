@@ -95,16 +95,17 @@ void Game::addShuffleAnimations()
 
         auto animation = std::make_unique<Animation>(
             sprite,
-            sprite.getPosition(),
-            newPos,
+            std::make_unique<MoveBehavior>(sprite.getPosition(), newPos),
             0.05f*i,
             0.10f
         );
-        
+
         auto animationReverse = std::make_unique<Animation>(
             sprite,
-            newPos,
-            bottomSpritePos + static_cast<float>(i) * sf::Vector2f{Config::DECK_STACK_X_OFFSET, Config::DECK_STACK_Y_OFFSET},
+            std::make_unique<MoveBehavior>(
+                newPos,
+                bottomSpritePos + static_cast<float>(i) * sf::Vector2f{Config::DECK_STACK_X_OFFSET, Config::DECK_STACK_Y_OFFSET}
+            ),
             0.05f*static_cast<float>(i) + 0.10f,
             0.10f
         );
@@ -141,8 +142,10 @@ void Game::addDealAnimations()
 
         auto moveAnimation = std::make_unique<Animation>(
             sprite,
-            sprite.getPosition(),
-            newPos,
+            std::make_unique<MoveBehavior>(
+                sprite.getPosition(),
+                newPos
+            ),
             0.1f + static_cast<float>(i) * 0.2f,
             0.2f
         );
