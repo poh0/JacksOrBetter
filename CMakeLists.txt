@@ -41,6 +41,7 @@ set(SOURCES
     src/Animation.cpp
     src/AnimationManager.cpp
     src/MoveBehavior.cpp
+    src/RotationBehavior.cpp
 )
 add_executable(JacksOrBetter ${SOURCES})
 

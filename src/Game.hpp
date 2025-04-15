@@ -7,6 +7,7 @@
 #include "Config.hpp"
 #include "AnimationManager.hpp"
 #include "MoveBehavior.hpp"
+#include "RotationBehavior.hpp"
 
 enum class GameState {
     WaitingToStart,

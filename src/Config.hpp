@@ -24,4 +24,7 @@ namespace Config {
     constexpr int DECK_XPOS = 300;
 
     constexpr int CARDS_VISIBLE_IN_DECK = 4;
+
+    constexpr float CARD_MOVE_DURATION = 0.2f;
+    constexpr float CARD_FLIP_DURATION = 0.14f;
 }

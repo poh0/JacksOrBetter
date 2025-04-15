@@ -146,17 +146,22 @@ void Game::addDealAnimations()
                 sprite.getPosition(),
                 newPos
             ),
-            0.1f + static_cast<float>(i) * 0.2f,
-            0.2f
+            static_cast<float>(i) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION),
+            Config::CARD_MOVE_DURATION
         );
 
-        // auto flipAnimation = std::make_unique<Animation>(
-        //     sprite,
-        //     sprite.getPosition(),
-
-        // );
+        auto flipAnimation = std::make_unique<Animation>(
+            sprite,
+            std::make_unique<RotationBehavior>(
+                sprite.getRotation3d(),
+                sf::Vector3f{0.0f, 0.0f, 0.0f}
+            ),
+            (static_cast<float>(i) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
+            Config::CARD_MOVE_DURATION
+        );
 
         mAnimationManager.addAnimation(std::move(moveAnimation));
+        mAnimationManager.addAnimation(std::move(flipAnimation));
     }
 }
 
