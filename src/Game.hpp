@@ -10,6 +10,7 @@
 enum class GameState {
     WaitingToStart,
     WaitingToDeal,
+    Shuffling,
     Dealing,
     SelectingCardsToKeep,
     Discarding,
@@ -31,6 +32,11 @@ public:
     void dealHand();
 
     void draw(sf::RenderWindow &window);
+
+    void setStackEffectPositions();
+    void addShuffleAnimations();
+    void addDealAnimations();
+
 
     GameState getState() const;
     void setState(GameState state);

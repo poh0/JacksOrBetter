@@ -8,7 +8,7 @@ Card::Card(CardValue _val, Suit _suit, bool _facedown, sf::Texture& texture)
     if (_facedown) { mSprite->setYaw(180.0f); }
 }
 
-Card::Card() : mSprite(std::make_unique<sw::Sprite3d>(ResourceManager::getInstance().getTexture("cards"), getCardTextureRect(CardValue::Ace, Suit::Hearts))) {}
+Card::Card() : mSprite(std::make_unique<sw::Sprite3d>(ResourceManager::getInstance().getTexture("cards"), getCardTextureRect(CardValue::Ace, Suit::Hearts))) { }
 
 Suit Card::getSuit() const
 {
@@ -50,6 +50,6 @@ sf::IntRect Card::getCardTextureRect(CardValue value, Suit suit)
 const sf::Vector2i Card::getCardBackTextureOffset()
 {
     return sf::Vector2i(
-        {0, 4 * Config::CARD_HEIGHT}
+        {Config::CARD_WIDTH, 4 * Config::CARD_HEIGHT}
     );
 }

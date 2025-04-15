@@ -9,7 +9,7 @@
 
 class Deck {
 public:
-    Deck(AnimationManager& animationManager);
+    Deck();
 
     void shuffle();
 
@@ -18,20 +18,15 @@ public:
 
     void initialize();
 
-    void setStackEffectPositions();
-
-    void addShuffleAnimations();
-
-    void addDealAnimations();
-
     void draw(sf::RenderWindow &window);
 
     void reset();
 
+public:
+    std::vector<Card>& getCards();
+
 private:
     std::vector<Card> m_Cards;
-
-    AnimationManager& mAnimationManager;
 
     // random number generator
     std::random_device rd;

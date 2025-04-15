@@ -1,6 +1,6 @@
 #include "HandEvaluator.hpp"
 
-HandRank HandEvaluator::evaluateHand(const std::vector<Card>& hand) {
+HandRank HandEvaluator::evaluateHand(const Hand& hand) {
     if (isRoyalFlush(hand)) return HandRank::RoyalFlush;
     if (isStraightFlush(hand)) return HandRank::StraightFlush;
     if (isFourOfAKind(hand)) return HandRank::FourOfAKind;
@@ -13,52 +13,52 @@ HandRank HandEvaluator::evaluateHand(const std::vector<Card>& hand) {
     return HandRank::HighCard; // Default case
 }
 
-bool HandEvaluator::isRoyalFlush(const std::vector<Card> &hand)
+bool HandEvaluator::isRoyalFlush(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isStraightFlush(const std::vector<Card> &hand)
+bool HandEvaluator::isStraightFlush(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isFourOfAKind(const std::vector<Card> &hand)
+bool HandEvaluator::isFourOfAKind(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isFullHouse(const std::vector<Card> &hand)
+bool HandEvaluator::isFullHouse(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isFlush(const std::vector<Card> &hand)
+bool HandEvaluator::isFlush(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isStraight(const std::vector<Card> &hand)
+bool HandEvaluator::isStraight(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isThreeOfAKind(const std::vector<Card> &hand)
+bool HandEvaluator::isThreeOfAKind(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isTwoPair(const std::vector<Card> &hand)
+bool HandEvaluator::isTwoPair(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isJacksOrBetter(const std::vector<Card> &hand)
+bool HandEvaluator::isJacksOrBetter(const Hand &hand)
 {
     return false;
 }
 
-bool HandEvaluator::isHighCard(const std::vector<Card> &hand)
+bool HandEvaluator::isHighCard(const Hand &hand)
 {
     return false;
 }

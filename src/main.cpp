@@ -4,6 +4,6 @@
 
 int main() {
     ResourceManager::getInstance().preloadTextures();
-    JacksOrBetter game;
-    game.run();
+    JacksOrBetter jacksOrBetter;
+    jacksOrBetter.run();
 }

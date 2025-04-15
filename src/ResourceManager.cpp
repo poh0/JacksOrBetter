@@ -8,7 +8,7 @@ ResourceManager& ResourceManager::getInstance() {
 void ResourceManager::preloadTextures() {
     fonts["toxi"] = sf::Font("res/toxigenesis bd.otf");
     //warning C4834: discarding return value of function with [[nodiscard]] attribute
-    textures["cards"].loadFromFile("res/cards_sheet.png");
+    textures["cards"].loadFromFile("res/cards_sheet2.png");
     textures["background"].loadFromFile("res/background.jpg");
 }
 

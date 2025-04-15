@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Card.hpp"
+#include "Hand.hpp"
 
 enum class HandRank {
     HighCard = 1,
@@ -17,17 +17,17 @@ enum class HandRank {
 
 class HandEvaluator {
 public:
-    static HandRank evaluateHand(const std::vector<Card>& hand);
+    static HandRank evaluateHand(const Hand& hand);
     
 private:
-    static bool isRoyalFlush(const std::vector<Card>& hand);
-    static bool isStraightFlush(const std::vector<Card>& hand);
-    static bool isFourOfAKind(const std::vector<Card>& hand);
-    static bool isFullHouse(const std::vector<Card>& hand);
-    static bool isFlush(const std::vector<Card>& hand);
-    static bool isStraight(const std::vector<Card>& hand);
-    static bool isThreeOfAKind(const std::vector<Card>& hand);
-    static bool isTwoPair(const std::vector<Card>& hand);
-    static bool isJacksOrBetter(const std::vector<Card>& hand);
-    static bool isHighCard(const std::vector<Card>& hand);
+    static bool isRoyalFlush(const Hand& hand);
+    static bool isStraightFlush(const Hand& hand);
+    static bool isFourOfAKind(const Hand& hand);
+    static bool isFullHouse(const Hand& hand);
+    static bool isFlush(const Hand& hand);
+    static bool isStraight(const Hand& hand);
+    static bool isThreeOfAKind(const Hand& hand);
+    static bool isTwoPair(const Hand& hand);
+    static bool isJacksOrBetter(const Hand& hand);
+    static bool isHighCard(const Hand& hand);
 };

@@ -1,7 +1,6 @@
 #include "Deck.hpp"
-#include <iostream>
 
-Deck::Deck(AnimationManager& animationManager) : mAnimationManager(animationManager)
+Deck::Deck()
 {
 }
 
@@ -20,7 +19,13 @@ Card Deck::dealCard()
 
 void Deck::reset()
 {
-    
+
+}
+
+std::vector<Card> &Deck::getCards()
+{
+    // TODO: insert return statement here
+    return m_Cards;
 }
 
 void Deck::initialize()
@@ -29,53 +34,17 @@ void Deck::initialize()
 
     sf::Texture& cardTextureSheet = ResourceManager::getInstance().getTexture("cards");
 
-    for (int suit = 1; suit <= 4; ++suit) {
-        for (int value = 2; value <= 13; ++value) {
+    for (int suit = 1; suit <= 4; suit++) {
+        for (int value = 1; value <= 13; value++) {
             m_Cards.emplace_back(static_cast<CardValue>(value), static_cast<Suit>(suit), true, cardTextureSheet);
         }
     }
 
 }
 
-void Deck::setStackEffectPositions() {
-    for (size_t i = std::max(0, (int)m_Cards.size() - 10); i < m_Cards.size(); ++i) {
-        sw::Sprite3d& sprite = m_Cards[i].getSprite();
-        sprite.setPosition({
-            Config::DECK_XPOS + Config::DECK_STACK_X_OFFSET * (i - (m_Cards.size() - 5)),
-            Config::DECK_YPOS + Config::DECK_STACK_Y_OFFSET * (i - (m_Cards.size() - 5))
-        });
-    }
-}
-
-void Deck::addShuffleAnimations()
-{
-    sf::Vector2f deltaX{75.0f, 0.0f};
-    for (size_t i = std::max(0, (int)m_Cards.size() - 10); i < m_Cards.size(); ++i) {
-        sw::Sprite3d& sprite = m_Cards[i].getSprite();
-        auto animation = std::make_unique<Animation>(
-            sprite,
-            sprite.getPosition(),
-            (i % 2) ? (sprite.getPosition() + deltaX) : (sprite.getPosition() - deltaX),
-            0.5f*(i - std::max(0, (int)m_Cards.size() - 10)),
-            1.5f
-        );
-
-        // we set a callback for the last animation to fire the dealing animations
-        if (i == m_Cards.size() - 1) {
-            animation->setCallback([this]() { addDealAnimations(); });
-        }
-        mAnimationManager.addAnimation(std::move(animation));
-    }
-}
-
-void Deck::addDealAnimations()
-{
-    std::cout << "Firing deals" << std::endl;
-}
-
 void Deck::draw(sf::RenderWindow &window)
 {
-    for (size_t i = std::max(0, (int)m_Cards.size() - 10); i < m_Cards.size(); ++i) {
+    for (size_t i = 0; i < Config::CARDS_VISIBLE_IN_DECK; ++i) {
         window.draw(m_Cards[i].getSprite());
     }
 }

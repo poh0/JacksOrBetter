@@ -9,6 +9,7 @@
 #include "Config.hpp"
 
 enum class CardValue {
+    Ace = 1,
     Two = 2,
     Three,
     Four,
@@ -20,8 +21,7 @@ enum class CardValue {
     Ten,
     Jack,
     Queen,
-    King,
-    Ace
+    King
 };
 
 // These are in the same order as in the sprite sheet

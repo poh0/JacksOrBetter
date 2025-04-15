@@ -1,10 +1,10 @@
 #include "Animation.hpp"
-#include <iostream>
+
 Animation::Animation(sw::Sprite3d &target, sf::Vector2f start, sf::Vector2f end, float delay, float duration, Callback callback)
     : mTarget(target), mStart(start), mEnd(end), mDelay(delay), mDuration(duration), mCallback(callback), mFinished(false)
 {
         // mTarget.setPosition(mStart);
-        mHasDelay = delay;
+        mHasDelay = static_cast<bool>(delay);
 }
 
 void Animation::update(float deltaTime)
