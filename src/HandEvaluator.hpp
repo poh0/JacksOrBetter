@@ -3,31 +3,31 @@
 #include "Hand.hpp"
 
 enum class HandRank {
-    HighCard = 1,
-    OnePairJacksOrBetter = 2,
-    TwoPair = 3,
-    ThreeOfAKind = 4,
-    Straight = 5,
-    Flush = 6,
-    FullHouse = 7,
-    FourOfAKind = 8,
-    StraightFlush = 9,
-    RoyalFlush = 10
+    Unranked = 1,
+    OnePairJacksOrBetter,
+    TwoPair,
+    ThreeOfAKind,
+    Straight,
+    RoyalStraight,
+    Flush,
+    FullHouse,
+    FourOfAKind,
+    StraightFlush,
+    RoyalFlush
 };
+
 
 class HandEvaluator {
 public:
-    static HandRank evaluateHand(const Hand& hand);
-    
+    static HandRank evaluateHand(Hand& hand);
+
 private:
-    static bool isRoyalFlush(const Hand& hand);
-    static bool isStraightFlush(const Hand& hand);
-    static bool isFourOfAKind(const Hand& hand);
-    static bool isFullHouse(const Hand& hand);
-    static bool isFlush(const Hand& hand);
-    static bool isStraight(const Hand& hand);
-    static bool isThreeOfAKind(const Hand& hand);
-    static bool isTwoPair(const Hand& hand);
-    static bool isJacksOrBetter(const Hand& hand);
-    static bool isHighCard(const Hand& hand);
+    static bool isFlush(Hand& hand);
+
+    static uint32_t handToUint32(Hand& hand);
+
+    static inline constexpr std::array<uint32_t, 13> rank_to_prime = {
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41
+        // index = static_cast<int>(Rank) where Rank is from 0..12
+    };
 };

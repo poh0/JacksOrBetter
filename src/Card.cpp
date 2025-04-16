@@ -29,6 +29,16 @@ sw::Sprite3d &Card::getSprite()
 {
     return *mSprite;
 }
+
+void Card::flipCard()
+{
+    mSprite->setRotation3d({
+        0.0f,
+        180.0f,
+        0.0f
+    });
+}
+
 sf::IntRect Card::getCardTextureRect(CardValue value, Suit suit)
 {
     using namespace Config;

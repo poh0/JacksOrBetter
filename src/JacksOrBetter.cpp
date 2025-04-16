@@ -53,6 +53,9 @@ void JacksOrBetter::processEvents()
                 if (mGame.getState() == GameState::WaitingToDeal) {
                     mGame.dealHand();
                 }
+                if ( (mGame.getState() == GameState::HandEndedLoss) || (mGame.getState() == GameState::HandEndedWin)) {
+                    mGame.dealHand();
+                }
             }
         }
         // if (event->is<sf::Event::Resized>())

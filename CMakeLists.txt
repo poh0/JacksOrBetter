@@ -45,4 +45,4 @@ set(SOURCES
 )
 add_executable(JacksOrBetter ${SOURCES})
 
-target_link_libraries(JacksOrBetter PRIVATE SFML::Graphics SelbaWard)
+target_link_libraries(JacksOrBetter PRIVATE SFML::Graphics SFML::Audio SelbaWard)

@@ -9,6 +9,11 @@ void Deck::shuffle()
     std::shuffle(m_Cards.begin(), m_Cards.end(), Deck::rng);
 }
 
+void Deck::addCard(Card &&card)
+{
+    m_Cards.emplace_back(std::move(card));  // Moves instead of copying
+}
+
 Card Deck::dealCard()
 {
     // todo: if (m_Cards.empty()) {}

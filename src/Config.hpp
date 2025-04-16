@@ -27,4 +27,5 @@ namespace Config {
 
     constexpr float CARD_MOVE_DURATION = 0.2f;
     constexpr float CARD_FLIP_DURATION = 0.14f;
+    constexpr float SHUFFLE_DURATION = 0.30f;
 }

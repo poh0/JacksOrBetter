@@ -13,6 +13,8 @@ public:
 
     void shuffle();
 
+    void addCard(Card&& card);
+
     // returns a card popped from deck, no copies are made
     Card dealCard();
 

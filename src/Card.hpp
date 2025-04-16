@@ -44,6 +44,8 @@ public:
 
     sw::Sprite3d& getSprite();
 
+    void flipCard();
+
     // Static functions to get the card texture rectangle from sprite sheet
     static sf::IntRect getCardTextureRect(CardValue value, Suit suit);
     static const sf::Vector2i getCardBackTextureOffset();

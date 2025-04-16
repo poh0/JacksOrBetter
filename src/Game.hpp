@@ -8,6 +8,7 @@
 #include "AnimationManager.hpp"
 #include "MoveBehavior.hpp"
 #include "RotationBehavior.hpp"
+#include "HandEvaluator.hpp"
 
 enum class GameState {
     WaitingToStart,
@@ -39,7 +40,6 @@ public:
     void addShuffleAnimations();
     void addDealAnimations();
 
-
     GameState getState() const;
     void setState(GameState state);
 
@@ -50,6 +50,7 @@ private:
     Deck mDeck;
 
     Hand mPlayerHand;
+    HandRank mPlayerHandRank = HandRank::Unranked;
 
     AnimationManager& mAnimationManager;
 

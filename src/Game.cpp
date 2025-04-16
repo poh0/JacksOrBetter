@@ -1,5 +1,5 @@
 #include "Game.hpp"
-
+#include <iostream>
 Game::Game(AnimationManager& animationManager) 
     : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),
     mAnimationManager(animationManager), mDeck()
@@ -18,8 +18,16 @@ void Game::start()
 
 void Game::dealHand()
 {
+    if ( (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin)) {
+        for (int i = 0; i < 5; i++) {
+            Card poppedCard = mPlayerHand.moveCard();
+            poppedCard.flipCard();
+            mDeck.addCard(std::move(poppedCard));
+        }
+    }
     mState = GameState::Shuffling;
     mDeck.shuffle();
+    Game::setStackEffectPositions();
 
     // We add cards to the hand before adding shuffle anims,
     // because last shuffle anim will have callback on addDealAnimations(),
@@ -31,7 +39,10 @@ void Game::dealHand()
         mPlayerHand.addCard(mDeck.dealCard());
     }
 
-    Game::setStackEffectPositions();
+    mPlayerHandRank = HandEvaluator::evaluateHand(mPlayerHand);
+
+    std::cout << static_cast<int>(mPlayerHandRank) << std::endl;
+
     Game::addShuffleAnimations();
 }
 
@@ -44,7 +55,7 @@ void Game::draw(sf::RenderWindow &window)
 
     mDeck.draw(window);
 
-    if (mState == GameState::Dealing)
+    if ( (mState == GameState::Dealing) || (mState == GameState::SelectingCardsToKeep) || (mState == GameState::HandEndedLoss) ||(mState == GameState::HandEndedWin))
     {
         mPlayerHand.draw(window);
     }
@@ -71,24 +82,13 @@ void Game::setStackEffectPositions() {
 
 void Game::addShuffleAnimations()
 {
-    sf::Vector2f deltaX{150.0f, 0.0f};
+    sf::Vector2f deltaX{170.0f, 0.0f};
     sf::Vector2f deltaY{0.0f, 20.0f};
-
-    // We want top card to go to bottom, 
-    // Currently every card stays the same place
-    // Top card should be deck position, cards should spawn there.
-
-    // Dealing cards We deal the top card, shift every card by the deck offsets
-
-    // int lastTenCardsIdx = std::max(0, static_cast<int>(m_Cards.size()) - Config::CARDS_VISIBLE_IN_DECK);
-    // std::cout << lastTenCardsIdx << m_Cards.size() << std::endl;
 
     sf::Vector2f bottomSpritePos = mDeck.getCards()[0].getSprite().getPosition();
     for (size_t i = 0; i < Config::CARDS_VISIBLE_IN_DECK; ++i) {
 
         sw::Sprite3d& sprite = mDeck.getCards()[i].getSprite();
-
-        // sf::Vector2f newPos = (i % 2) ? (sprite.getPosition() + deltaX + deltaY) : (sprite.getPosition() - deltaX + deltaY);
 
         sf::Vector2f newPos = sprite.getPosition() - deltaX + deltaY;
         sf::Vector2f oldPos = sprite.getPosition();
@@ -97,7 +97,7 @@ void Game::addShuffleAnimations()
             sprite,
             std::make_unique<MoveBehavior>(sprite.getPosition(), newPos),
             0.05f*i,
-            0.10f
+            Config::SHUFFLE_DURATION/2
         );
 
         auto animationReverse = std::make_unique<Animation>(
@@ -106,16 +106,16 @@ void Game::addShuffleAnimations()
                 newPos,
                 bottomSpritePos + static_cast<float>(i) * sf::Vector2f{Config::DECK_STACK_X_OFFSET, Config::DECK_STACK_Y_OFFSET}
             ),
-            0.05f*static_cast<float>(i) + 0.10f,
-            0.10f
+            0.05f*static_cast<float>(i) + Config::SHUFFLE_DURATION/2,
+            Config::SHUFFLE_DURATION/2
         );
 
        // we set a callback for the last animation to fire the dealing animations
 
         if (i == Config::CARDS_VISIBLE_IN_DECK - 1) {
-            animationReverse->setCallback([this]() {
+            animationReverse->setCallback([&, this]() {
                 addDealAnimations();
-                mState = GameState::Dealing;
+                this->mState = GameState::Dealing;
             });
         }
 
@@ -159,6 +159,15 @@ void Game::addDealAnimations()
             (static_cast<float>(i) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
             Config::CARD_MOVE_DURATION
         );
+
+        if (i == mPlayerHand.getCards().size() - 1) {
+            flipAnimation->setCallback([&, this]() {
+                if (mPlayerHandRank == HandRank::Unranked)
+                    this->mState = GameState::HandEndedLoss;
+                else
+                    this->mState = GameState::HandEndedWin;
+            });
+        }
 
         mAnimationManager.addAnimation(std::move(moveAnimation));
         mAnimationManager.addAnimation(std::move(flipAnimation));

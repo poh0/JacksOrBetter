@@ -1,64 +1,45 @@
 #include "HandEvaluator.hpp"
+#include "HandRankTable.hpp"
 
-HandRank HandEvaluator::evaluateHand(const Hand& hand) {
-    if (isRoyalFlush(hand)) return HandRank::RoyalFlush;
-    if (isStraightFlush(hand)) return HandRank::StraightFlush;
-    if (isFourOfAKind(hand)) return HandRank::FourOfAKind;
-    if (isFullHouse(hand)) return HandRank::FullHouse;
-    if (isFlush(hand)) return HandRank::Flush;
-    if (isStraight(hand)) return HandRank::Straight;
-    if (isThreeOfAKind(hand)) return HandRank::ThreeOfAKind;
-    if (isTwoPair(hand)) return HandRank::TwoPair;
-    if (isJacksOrBetter(hand)) return HandRank::OnePairJacksOrBetter;
-    return HandRank::HighCard; // Default case
+HandRank HandEvaluator::evaluateHand(Hand& hand) {
+
+    uint32_t handAsInt = handToUint32(hand);
+
+    HandRank rankNoFlush = handRankTable.find(handAsInt)->second;
+
+    if (isFlush(hand)) {
+        if (rankNoFlush == HandRank::Straight) {
+            return HandRank::StraightFlush;
+        }
+        else if (rankNoFlush == HandRank::RoyalStraight) {
+            return HandRank::RoyalFlush;
+        }
+        else if (rankNoFlush != HandRank::FullHouse | rankNoFlush != HandRank::FourOfAKind) {
+            return HandRank::Flush;
+        }
+    }
+
+    return rankNoFlush; // Default case
 }
 
-bool HandEvaluator::isRoyalFlush(const Hand &hand)
+bool HandEvaluator::isFlush(Hand &hand)
 {
-    return false;
+    Suit firstSuit = hand.getCards()[0].getSuit();
+
+    for (auto &card : hand.getCards()) {
+        if (card.getSuit() != firstSuit) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
-bool HandEvaluator::isStraightFlush(const Hand &hand)
+uint32_t HandEvaluator::handToUint32(Hand &hand)
 {
-    return false;
-}
-
-bool HandEvaluator::isFourOfAKind(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isFullHouse(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isFlush(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isStraight(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isThreeOfAKind(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isTwoPair(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isJacksOrBetter(const Hand &hand)
-{
-    return false;
-}
-
-bool HandEvaluator::isHighCard(const Hand &hand)
-{
-    return false;
+    uint32_t hand_encoded = 1;
+    for (auto &card : hand.getCards()) {
+        hand_encoded*= rank_to_prime[static_cast<int>(card.getValue()) - 1];
+    }
+    return hand_encoded;
 }

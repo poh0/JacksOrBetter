@@ -2,6 +2,7 @@
 
 Hand::Hand()
 {
+    mKeptCardIdxs.reserve(5);
 }
 
 void Hand::addCard(Card &&card)
@@ -20,4 +21,12 @@ void Hand::draw(sf::RenderWindow &window)
 std::vector<Card> &Hand::getCards()
 {
     return mCards;
+}
+
+Card Hand::moveCard()
+{
+    // todo: if (m_Cards.empty()) {}
+    Card dealtCard = std::move(mCards.back());
+    mCards.pop_back();
+    return dealtCard;
 }
