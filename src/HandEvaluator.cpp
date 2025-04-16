@@ -14,7 +14,7 @@ HandRank HandEvaluator::evaluateHand(Hand& hand) {
         else if (rankNoFlush == HandRank::RoyalStraight) {
             return HandRank::RoyalFlush;
         }
-        else if (rankNoFlush != HandRank::FullHouse | rankNoFlush != HandRank::FourOfAKind) {
+        else if ( (rankNoFlush != HandRank::FullHouse) || (rankNoFlush != HandRank::FourOfAKind)) {
             return HandRank::Flush;
         }
     }

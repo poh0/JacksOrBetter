@@ -12,12 +12,15 @@ JacksOrBetter::JacksOrBetter()
     pressAnyKeyText(sf::Text(ResourceManager::getInstance().getFont("toxi"), "Press any key to start", 30)),
     mGame(mAnimationManager)
 {
-    window.setFramerateLimit(Config::FRAMERATE_LIMIT);
+    window.setFramerateLimit(120);
     // backgroundTexture = sf::Texture("res/background.jpg");
     // backgroundSprite = sf::Sprite(backgroundTexture);
     sf::FloatRect textRect = pressAnyKeyText.getLocalBounds();
     pressAnyKeyText.setOrigin(textRect.getCenter());
     pressAnyKeyText.setPosition(window.getView().getCenter());
+
+    window.setKeyRepeatEnabled(false);
+
     // load spritesheet of cards
     //cardSheetTexture = sf::Texture("res/card_sheet.png");
 
@@ -53,9 +56,33 @@ void JacksOrBetter::processEvents()
                 if (mGame.getState() == GameState::WaitingToDeal) {
                     mGame.dealHand();
                 }
+
+                if (mGame.getState() == GameState::SelectingCardsToKeep) {
+                    mGame.discardUnkeptCards();
+                }
+
                 if ( (mGame.getState() == GameState::HandEndedLoss) || (mGame.getState() == GameState::HandEndedWin)) {
+                    std::cout << "HEYY KEY WAS PORESS" << std::endl;
                     mGame.dealHand();
                 }
+            }
+            
+            switch (keyPressed->scancode) {
+                case sf::Keyboard::Scancode::Num1:
+                    mGame.toggleKeepCard(0);
+                    break;
+                case sf::Keyboard::Scancode::Num2:
+                    mGame.toggleKeepCard(1);
+                    break;
+                case sf::Keyboard::Scancode::Num3:
+                    mGame.toggleKeepCard(2);
+                    break;
+                case sf::Keyboard::Scancode::Num4:
+                    mGame.toggleKeepCard(3);
+                    break;
+                case sf::Keyboard::Scancode::Num5:
+                    mGame.toggleKeepCard(4);
+                    break;
             }
         }
         // if (event->is<sf::Event::Resized>())

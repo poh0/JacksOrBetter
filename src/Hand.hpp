@@ -16,6 +16,4 @@ public:
 private:
     std::vector<Card> mCards;
 
-    std::vector<uint8_t> mKeptCardIdxs;
-
 };

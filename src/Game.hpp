@@ -34,11 +34,18 @@ public:
     void initGame();
     void dealHand();
 
+    void discardUnkeptCards();
+
+    void determineWin();
+
+    void toggleKeepCard(int index);
+
     void draw(sf::RenderWindow &window);
 
     void setStackEffectPositions();
     void addShuffleAnimations();
     void addDealAnimations();
+    void addKeepAnimation(int index, bool reverse = false);
 
     GameState getState() const;
     void setState(GameState state);
@@ -51,6 +58,10 @@ private:
 
     Hand mPlayerHand;
     HandRank mPlayerHandRank = HandRank::Unranked;
+
+    std::array<bool, 5> keptCards;
+    
+    std::vector<Card> mDiscardPile;
 
     AnimationManager& mAnimationManager;
 

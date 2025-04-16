@@ -2,8 +2,9 @@
 #include <iostream>
 Game::Game(AnimationManager& animationManager) 
     : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),
-    mAnimationManager(animationManager), mDeck()
+    mAnimationManager(animationManager), mDeck(), keptCards({{false}})
 {
+    mDiscardPile.reserve(5);
 }
 
 void Game::start()
@@ -39,11 +40,50 @@ void Game::dealHand()
         mPlayerHand.addCard(mDeck.dealCard());
     }
 
+    Game::addShuffleAnimations();
+}
+
+void Game::discardUnkeptCards()
+{
+    mState = GameState::Discarding;
+
+    auto& playerCards = mPlayerHand.getCards();
+    for (int i = playerCards.size() - 1; i >= 0; i--) {
+        if (keptCards[i] == false) {
+            mDiscardPile.push_back(std::move(playerCards[i]));
+            playerCards.erase(playerCards.begin() + i);
+            playerCards.insert(playerCards.begin() + i, std::move(mDeck.dealCard()));
+        } else {
+            addKeepAnimation(i, true);
+        }
+    }
+
+    addDealAnimations();
+    keptCards = {{false}};
+}
+
+void Game::determineWin()
+{
     mPlayerHandRank = HandEvaluator::evaluateHand(mPlayerHand);
 
-    std::cout << static_cast<int>(mPlayerHandRank) << std::endl;
+    if (mPlayerHandRank == HandRank::Unranked) {
+        mState = GameState::HandEndedLoss;
+        std::cout << "LOSS" << std::endl;
+    } else {
+        mState = GameState::HandEndedWin;
+        std::cout << "VICTORY: " << static_cast<int>(mPlayerHandRank) << std::endl;
+    }
+}
 
-    Game::addShuffleAnimations();
+void Game::toggleKeepCard(int index)
+{
+    if (mState != GameState::SelectingCardsToKeep || index > 4 || index < 0) {
+        return;
+    }
+
+    keptCards[index] = !keptCards[index];
+
+    addKeepAnimation(index, !keptCards[index]);
 }
 
 void Game::draw(sf::RenderWindow &window)
@@ -55,7 +95,7 @@ void Game::draw(sf::RenderWindow &window)
 
     mDeck.draw(window);
 
-    if ( (mState == GameState::Dealing) || (mState == GameState::SelectingCardsToKeep) || (mState == GameState::HandEndedLoss) ||(mState == GameState::HandEndedWin))
+    if ( (mState == GameState::Dealing) || (mState == GameState::SelectingCardsToKeep) || (mState == GameState::HandEndedLoss) || (mState == GameState::Discarding) ||(mState == GameState::HandEndedWin))
     {
         mPlayerHand.draw(window);
     }
@@ -130,8 +170,24 @@ void Game::addShuffleAnimations()
     // and for the last card animation, we set a callback that will set the game state to SelectingCardsToKeep
 void Game::addDealAnimations()
 {
+    int lastAnimIdx = 4;
+    for (lastAnimIdx; lastAnimIdx > 0; lastAnimIdx--) {
+        if (!keptCards[lastAnimIdx]) {
+            break;
+        }
+    }
 
+    if (lastAnimIdx == 0) {
+        determineWin();
+        return;
+    }
+
+    int idxForDelay = 0;
     for (size_t i = 0; i < mPlayerHand.getCards().size(); ++i) {
+        
+        if (keptCards[i]) {
+            continue;
+        }
 
         sw::Sprite3d& sprite = mPlayerHand.getCards()[i].getSprite();
 
@@ -146,7 +202,7 @@ void Game::addDealAnimations()
                 sprite.getPosition(),
                 newPos
             ),
-            static_cast<float>(i) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION),
+            static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION),
             Config::CARD_MOVE_DURATION
         );
 
@@ -156,22 +212,45 @@ void Game::addDealAnimations()
                 sprite.getRotation3d(),
                 sf::Vector3f{0.0f, 0.0f, 0.0f}
             ),
-            (static_cast<float>(i) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
+            (static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
             Config::CARD_MOVE_DURATION
         );
 
-        if (i == mPlayerHand.getCards().size() - 1) {
+        if (i == lastAnimIdx) {
             flipAnimation->setCallback([&, this]() {
-                if (mPlayerHandRank == HandRank::Unranked)
-                    this->mState = GameState::HandEndedLoss;
-                else
-                    this->mState = GameState::HandEndedWin;
+                if (this->mState == GameState::Dealing) {
+                    this->mState = GameState::SelectingCardsToKeep;
+                } else if (this->mState == GameState::Discarding) {
+                    determineWin();
+                }
             });
         }
 
         mAnimationManager.addAnimation(std::move(moveAnimation));
         mAnimationManager.addAnimation(std::move(flipAnimation));
+
+        idxForDelay++;
     }
+}
+
+void Game::addKeepAnimation(int index, bool reverse)
+{
+    sw::Sprite3d &sprite = mPlayerHand.getCards()[index].getSprite();
+
+    sf::Vector2f deltaY = {0.0f, (reverse ? -20.0f : 20.0f)};
+    sf::Vector2f newPos = sprite.getPosition() + deltaY;
+
+    auto moveAnimation = std::make_unique<Animation>(
+        sprite,
+        std::make_unique<MoveBehavior>(
+            sprite.getPosition(),
+            newPos
+        ),
+        0.0f,
+        0.10f
+    );
+
+    mAnimationManager.addAnimation(std::move(moveAnimation));
 }
 
 GameState Game::getState() const

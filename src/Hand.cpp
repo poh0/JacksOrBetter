@@ -1,8 +1,8 @@
 #include "Hand.hpp"
-
+#include <iostream>
 Hand::Hand()
 {
-    mKeptCardIdxs.reserve(5);
+    mCards.reserve(5);
 }
 
 void Hand::addCard(Card &&card)
