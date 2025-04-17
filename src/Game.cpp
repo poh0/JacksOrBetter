@@ -2,7 +2,7 @@
 #include <iostream>
 Game::Game(AnimationManager& animationManager) 
     : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),
-    mAnimationManager(animationManager), mDeck(), keptCards({{false}})
+    mAnimationManager(animationManager), mDeck(), mKeptCards(0b00000)
 {
     mDiscardPile.reserve(5);
 }
@@ -17,14 +17,29 @@ void Game::start()
     }
 }
 
+void Game::cleanup()
+{
+    // move cards from discard pile back to the deck
+    if (mDiscardPile.size() > 0) {
+        for (auto &card : mDiscardPile) {
+            card.flipCard();
+            mDeck.addCard(std::move(card));
+        }
+        mDiscardPile.clear();
+    }
+
+    // move cards from hand back to the deck
+    for (int i = 0; i < 5; i++) {
+        Card poppedCard = mPlayerHand.moveCard();
+        poppedCard.flipCard();
+        mDeck.addCard(std::move(poppedCard));
+    }
+}
+
 void Game::dealHand()
 {
     if ( (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin)) {
-        for (int i = 0; i < 5; i++) {
-            Card poppedCard = mPlayerHand.moveCard();
-            poppedCard.flipCard();
-            mDeck.addCard(std::move(poppedCard));
-        }
+        cleanup();
     }
     mState = GameState::Shuffling;
     mDeck.shuffle();
@@ -46,10 +61,24 @@ void Game::dealHand()
 void Game::discardUnkeptCards()
 {
     mState = GameState::Discarding;
-
     auto& playerCards = mPlayerHand.getCards();
+
+    if (mKeptCards.all()) {
+        for (int i = playerCards.size() - 1; i >= 1; i--) {
+            addKeepAnimation(i, true);
+        }
+
+        // We want a callback for the last move animation
+        addKeepAnimation(0, true, [this]() {
+            determineWin();
+        });
+
+        mKeptCards.reset();
+        return;
+    }
+
     for (int i = playerCards.size() - 1; i >= 0; i--) {
-        if (keptCards[i] == false) {
+        if (!mKeptCards[i]) {
             mDiscardPile.push_back(std::move(playerCards[i]));
             playerCards.erase(playerCards.begin() + i);
             playerCards.insert(playerCards.begin() + i, std::move(mDeck.dealCard()));
@@ -59,7 +88,7 @@ void Game::discardUnkeptCards()
     }
 
     addDealAnimations();
-    keptCards = {{false}};
+    mKeptCards.reset(); // reset mKeptCards to all 0 (false)
 }
 
 void Game::determineWin()
@@ -81,9 +110,9 @@ void Game::toggleKeepCard(int index)
         return;
     }
 
-    keptCards[index] = !keptCards[index];
+    mKeptCards[index] = !mKeptCards[index];
 
-    addKeepAnimation(index, !keptCards[index]);
+    addKeepAnimation(index, !mKeptCards[index]);
 }
 
 void Game::draw(sf::RenderWindow &window)
@@ -170,22 +199,18 @@ void Game::addShuffleAnimations()
     // and for the last card animation, we set a callback that will set the game state to SelectingCardsToKeep
 void Game::addDealAnimations()
 {
+    if (mKeptCards.all()) return;
+
     int lastAnimIdx = 4;
     for (lastAnimIdx; lastAnimIdx > 0; lastAnimIdx--) {
-        if (!keptCards[lastAnimIdx]) {
+        if (!mKeptCards[lastAnimIdx]) {
             break;
         }
     }
 
-    if (lastAnimIdx == 0) {
-        determineWin();
-        return;
-    }
-
     int idxForDelay = 0;
     for (size_t i = 0; i < mPlayerHand.getCards().size(); ++i) {
-        
-        if (keptCards[i]) {
+        if (mKeptCards[i]) {
             continue;
         }
 
@@ -233,7 +258,7 @@ void Game::addDealAnimations()
     }
 }
 
-void Game::addKeepAnimation(int index, bool reverse)
+void Game::addKeepAnimation(int index, bool reverse, std::function<void()> callback)
 {
     sw::Sprite3d &sprite = mPlayerHand.getCards()[index].getSprite();
 
@@ -249,6 +274,11 @@ void Game::addKeepAnimation(int index, bool reverse)
         0.0f,
         0.10f
     );
+
+    // Optional callback
+    if (callback) {
+        moveAnimation->setCallback(callback);
+    }
 
     mAnimationManager.addAnimation(std::move(moveAnimation));
 }

@@ -1,6 +1,5 @@
 #include "JacksOrBetter.hpp"
 #include "ResourceManager.hpp"
-#include <iostream>
 
 JacksOrBetter::JacksOrBetter() 
     : window(
@@ -62,7 +61,6 @@ void JacksOrBetter::processEvents()
                 }
 
                 if ( (mGame.getState() == GameState::HandEndedLoss) || (mGame.getState() == GameState::HandEndedWin)) {
-                    std::cout << "HEYY KEY WAS PORESS" << std::endl;
                     mGame.dealHand();
                 }
             }

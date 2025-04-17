@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <bitset>
+
 #include "Deck.hpp"
 #include "Hand.hpp"
 #include "Config.hpp"
@@ -31,6 +33,9 @@ public:
     Game(AnimationManager& animationManager);
 
     void start();
+
+    void cleanup();
+
     void initGame();
     void dealHand();
 
@@ -45,7 +50,7 @@ public:
     void setStackEffectPositions();
     void addShuffleAnimations();
     void addDealAnimations();
-    void addKeepAnimation(int index, bool reverse = false);
+    void addKeepAnimation(int index, bool reverse = false, std::function<void()> callback = nullptr);
 
     GameState getState() const;
     void setState(GameState state);
@@ -59,7 +64,7 @@ private:
     Hand mPlayerHand;
     HandRank mPlayerHandRank = HandRank::Unranked;
 
-    std::array<bool, 5> keptCards;
+    std::bitset<5> mKeptCards;
     
     std::vector<Card> mDiscardPile;
 
