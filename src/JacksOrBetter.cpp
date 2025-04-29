@@ -83,6 +83,14 @@ void JacksOrBetter::processEvents()
                     break;
             }
         }
+
+        if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+            if (mousePressed->button == sf::Mouse::Button::Left) {
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                mGame.leftMouseClick(mousePos);
+            }
+        }
+
         // if (event->is<sf::Event::Resized>())
         //     resizeBackground();
     }

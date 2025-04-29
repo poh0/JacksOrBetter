@@ -1,5 +1,5 @@
 #include "Game.hpp"
-#include <iostream>
+
 Game::Game(AnimationManager& animationManager) 
     : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),
     mAnimationManager(animationManager), mDeck(), mKeptCards(0b00000)
@@ -281,6 +281,20 @@ void Game::addKeepAnimation(int index, bool reverse, std::function<void()> callb
     }
 
     mAnimationManager.addAnimation(std::move(moveAnimation));
+}
+
+void Game::leftMouseClick(sf::Vector2f pos)
+{
+    if (mState == GameState::SelectingCardsToKeep) {
+        int idx = 0;
+        for (auto& card : mPlayerHand.getCards()) {
+            if (card.contains(pos)) {
+                toggleKeepCard(idx);
+                break;
+            }
+            idx++;
+        }
+    }
 }
 
 GameState Game::getState() const

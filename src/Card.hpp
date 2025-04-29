@@ -50,6 +50,9 @@ public:
     static sf::IntRect getCardTextureRect(CardValue value, Suit suit);
     static const sf::Vector2i getCardBackTextureOffset();
 
+public:
+    bool contains(sf::Vector2f pos) const; // for mouse click
+
 private:
     // Suit of this card
     Suit mSuit;

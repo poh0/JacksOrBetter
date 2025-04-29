@@ -52,6 +52,8 @@ public:
     void addDealAnimations();
     void addKeepAnimation(int index, bool reverse = false, std::function<void()> callback = nullptr);
 
+    void leftMouseClick(sf::Vector2f pos);
+
     GameState getState() const;
     void setState(GameState state);
 

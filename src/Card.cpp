@@ -63,3 +63,9 @@ const sf::Vector2i Card::getCardBackTextureOffset()
         {Config::CARD_WIDTH, 4 * Config::CARD_HEIGHT}
     );
 }
+
+bool Card::contains(sf::Vector2f pos) const
+{
+    if (!mSprite) return false;
+    return mSprite->getGlobalBounds().contains(pos);
+}
