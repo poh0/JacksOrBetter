@@ -7,6 +7,7 @@
 #include "ResourceManager.hpp"
 #include "Game.hpp"
 #include "AnimationManager.hpp"
+#include "PushButton.hpp"
 
 class JacksOrBetter {
 public:
@@ -30,5 +31,7 @@ private:
     Game mGame;
 
     AnimationManager mAnimationManager;
+    ResourceManager& mResManager;
 
+    UI::PushButton mDealBtn;
 };

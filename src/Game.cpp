@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <iostream>
 
 Game::Game(AnimationManager& animationManager) 
     : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),

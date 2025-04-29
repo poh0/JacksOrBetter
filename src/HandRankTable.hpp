@@ -1,4 +1,4 @@
-
+#pragma once
 namespace {
     // anonymous namespace = internal linkage (like `static`)
     const std::unordered_map<uint32_t, HandRank> handRankTable = {

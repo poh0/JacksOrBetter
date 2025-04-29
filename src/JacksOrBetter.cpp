@@ -9,7 +9,9 @@ JacksOrBetter::JacksOrBetter()
     ),
     backgroundSprite(sf::Sprite(ResourceManager::getInstance().getTexture("background"))),
     pressAnyKeyText(sf::Text(ResourceManager::getInstance().getFont("toxi"), "Press any key to start", 30)),
-    mGame(mAnimationManager)
+    mGame(mAnimationManager),
+    mResManager(ResourceManager::getInstance()),
+    mDealBtn(UI::PushButton(mResManager.getTexture("dealbtn_idle"), mResManager.getTexture("dealbtn_click")))
 {
     window.setFramerateLimit(120);
     // backgroundTexture = sf::Texture("res/background.jpg");
@@ -17,6 +19,9 @@ JacksOrBetter::JacksOrBetter()
     sf::FloatRect textRect = pressAnyKeyText.getLocalBounds();
     pressAnyKeyText.setOrigin(textRect.getCenter());
     pressAnyKeyText.setPosition(window.getView().getCenter());
+
+    mDealBtn.setPosition({Config::DEALBTN_XPOS, Config::DEALBTN_YPOS});
+    mDealBtn.setText("DEAL");
 
     window.setKeyRepeatEnabled(false);
 
@@ -88,6 +93,15 @@ void JacksOrBetter::processEvents()
             if (mousePressed->button == sf::Mouse::Button::Left) {
                 sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                 mGame.leftMouseClick(mousePos);
+
+                if (mDealBtn.contains(mousePos)) mDealBtn.onPress();
+            }
+        }
+
+        if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            if (mouseReleased->button == sf::Mouse::Button::Left) {
+                if (mDealBtn.contains(mousePos)) mDealBtn.onRelease();
             }
         }
 
@@ -108,6 +122,10 @@ void JacksOrBetter::render()
 
     if (mGame.getState() == GameState::WaitingToStart) {
         window.draw(pressAnyKeyText);
+    }
+
+    if (mGame.getState() != GameState::WaitingToStart) {
+        mDealBtn.draw(window);
     }
 
     mGame.draw(window);
