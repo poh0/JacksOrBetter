@@ -1,5 +1,5 @@
 #include "Hand.hpp"
-#include <iostream>
+
 Hand::Hand()
 {
     mCards.reserve(5);

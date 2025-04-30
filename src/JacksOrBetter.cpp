@@ -14,21 +14,49 @@ JacksOrBetter::JacksOrBetter()
     mDealBtn(UI::PushButton(mResManager.getTexture("dealbtn_idle"), mResManager.getTexture("dealbtn_click")))
 {
     window.setFramerateLimit(120);
-    // backgroundTexture = sf::Texture("res/background.jpg");
-    // backgroundSprite = sf::Sprite(backgroundTexture);
+    window.setKeyRepeatEnabled(false);
+
+    /*
+    *   SETUP TEXTS
+    */
     sf::FloatRect textRect = pressAnyKeyText.getLocalBounds();
     pressAnyKeyText.setOrigin(textRect.getCenter());
     pressAnyKeyText.setPosition(window.getView().getCenter());
 
+
+    /*
+    *   SETUP BUTTONS
+    */
     mDealBtn.setPosition({Config::DEALBTN_XPOS, Config::DEALBTN_YPOS});
     mDealBtn.setText("DEAL");
+    mDealBtn.setCallback([this]() {
+        if ( mGame.getState() == GameState::WaitingToDeal ||
+             mGame.getState() == GameState::HandEndedLoss ||
+             mGame.getState() == GameState::HandEndedWin
+        ) {
+            mGame.dealHand();
+        }
+        else if (mGame.getState() == GameState::SelectingCardsToKeep) {
+            mGame.discardUnkeptCards();
+        }
+    });
+    mPushButtons.push_back(&mDealBtn);
 
-    window.setKeyRepeatEnabled(false);
+    mHoldBtn.reserve(5);
+    for (int i = 0; i < 5; i++) {
+        mHoldBtn.emplace_back(UI::PushButton(
+            mResManager.getTexture("holdbtn_idle"),
+            mResManager.getTexture("holdbtn_click"),
+            3.0f
+        ));
+        mHoldBtn[i].setText("HOLD");
+        mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, 580.0f});
 
-    // load spritesheet of cards
-    //cardSheetTexture = sf::Texture("res/card_sheet.png");
-
-    // resizeBackground(); // Scale on startup
+        mHoldBtn[i].setCallback([this, i]() {
+            this->mGame.toggleKeepCard(i);
+        });
+        mPushButtons.push_back(&mHoldBtn[i]);
+    }
 }
 
 void JacksOrBetter::run()
@@ -94,25 +122,44 @@ void JacksOrBetter::processEvents()
                 sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                 mGame.leftMouseClick(mousePos);
 
-                if (mDealBtn.contains(mousePos)) mDealBtn.onPress();
+                for (auto* btn : mPushButtons) {
+                    if (btn->contains(mousePos)) btn->onPress();
+                }
             }
         }
 
         if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
             sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             if (mouseReleased->button == sf::Mouse::Button::Left) {
-                if (mDealBtn.contains(mousePos)) mDealBtn.onRelease();
+                for (auto* btn : mPushButtons) {
+                    btn->onRelease(mousePos);
+                }
             }
         }
-
-        // if (event->is<sf::Event::Resized>())
-        //     resizeBackground();
     }
 }
 
 void JacksOrBetter::update(float deltatime)
 {
     mAnimationManager.update(deltatime);
+    if ( mGame.getState() == GameState::WaitingToDeal ||
+        mGame.getState() == GameState::HandEndedLoss ||
+        mGame.getState() == GameState::HandEndedWin
+        ) {
+        mDealBtn.setActive(true);
+    }
+    else if (mGame.getState() == GameState::SelectingCardsToKeep) {
+        mDealBtn.setActive(true);
+        for (auto& btn : mHoldBtn) {
+            btn.setActive(true);
+        }
+    } 
+    else {
+        mDealBtn.setActive(false);
+        for (auto& btn : mHoldBtn) {
+            btn.setActive(false);
+        }
+    }
 }
 
 void JacksOrBetter::render()
@@ -126,26 +173,12 @@ void JacksOrBetter::render()
 
     if (mGame.getState() != GameState::WaitingToStart) {
         mDealBtn.draw(window);
+        for (auto& btn : mHoldBtn) {
+            btn.draw(window);
+        }
     }
 
     mGame.draw(window);
 
     window.display();
 }
-
-// void JacksOrBetter::resizeBackground()
-// {
-//     sf::Vector2u windowSize = window.getSize();
-//     sf::Vector2u textureSize = backgroundTexture.getSize();
-
-//     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
-//     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-
-//     float scale = std::max(scaleX, scaleY);
-
-//     backgroundSprite.setScale({scale, scale});
-//     backgroundSprite.setPosition({
-//         (windowSize.x - textureSize.x * scale) / 2,
-//         (windowSize.y - textureSize.y * scale) / 2
-//     });
-// }

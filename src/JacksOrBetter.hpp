@@ -33,5 +33,10 @@ private:
     AnimationManager mAnimationManager;
     ResourceManager& mResManager;
 
+    // BUTTONS
     UI::PushButton mDealBtn;
+    std::vector<UI::PushButton> mHoldBtn;
+
+    std::vector<UI::PushButton*> mPushButtons;
+    // UI::PushButton mSettingsBtn
 };
