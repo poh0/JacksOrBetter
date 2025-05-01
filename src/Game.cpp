@@ -111,6 +111,7 @@ void Game::determineWin()
         std::cout << "LOSS" << std::endl;
     } else {
         mState = GameState::HandEndedWin;
+        mEventBus.emit(GameEvent::HandEndedWin);
         std::cout << "VICTORY: " << static_cast<int>(mPlayerHandRank) << std::endl;
     }
 }
@@ -322,4 +323,9 @@ void Game::setState(GameState state)
 int Game::getCredits() const
 {
     return mCredits;
+}
+
+int Game::getBetSize() const
+{
+    return mBetSize;
 }

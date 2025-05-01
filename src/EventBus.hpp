@@ -8,7 +8,8 @@ enum class GameEvent {
     BetChanged,
     CreditsChanged,
     DealingCards,
-    HandEndedLoss
+    HandEndedLoss,
+    HandEndedWin
 };
 
 class EventBus {

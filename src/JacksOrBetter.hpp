@@ -38,6 +38,9 @@ private:
     sf::Text pressAnyKeyText;
     sf::Text mBalanceText;
     sf::Text mCreditsText;
+    sf::Text mBetText;
+    sf::Text mBetSizeText;
+    sf::Text mInfoText;
 
     // BUTTONS
     UI::PushButton mDealBtn;

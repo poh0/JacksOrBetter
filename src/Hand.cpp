@@ -18,7 +18,7 @@ void Hand::draw(sf::RenderWindow &window)
     }
 }
 
-std::vector<Card> &Hand::getCards()
+std::vector<Card>& Hand::getCards()
 {
     return mCards;
 }

@@ -59,6 +59,7 @@ public:
     void setState(GameState state);
 
     int getCredits() const;
+    int getBetSize() const;
 
 private:
 

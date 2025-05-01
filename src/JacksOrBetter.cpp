@@ -13,6 +13,9 @@ JacksOrBetter::JacksOrBetter()
     pressAnyKeyText(sf::Text(mResManager.getFont("toxi"), "Press any key to start", 30)),
     mBalanceText(sf::Text(mResManager.getFont("toxi"), "Balance: ", 18)),
     mCreditsText(sf::Text(mResManager.getFont("toxi"), "", 18)),
+    mBetText(sf::Text(mResManager.getFont("toxi"), "Bet: ", 18)),
+    mBetSizeText(sf::Text(mResManager.getFont("toxi"), "", 18)),
+    mInfoText(sf::Text(mResManager.getFont("toxi"), "", 16)),
     mDealBtn(UI::PushButton(mResManager.getTexture("dealbtn_idle"), mResManager.getTexture("dealbtn_click"))),
     mDoubleBtn(UI::PushButton(mResManager.getTexture("holdbtn_idle"), mResManager.getTexture("holdbtn_click"), 3.0f)),
     mCollectBtn(UI::PushButton(mResManager.getTexture("holdbtn_idle"), mResManager.getTexture("holdbtn_click"), 3.0f))
@@ -113,16 +116,24 @@ void JacksOrBetter::render()
     window.clear();
     window.draw(backgroundSprite);
 
-    if (mGame.getState() == GameState::WaitingToStart) {
+    GameState state = mGame.getState();
+
+    if (state == GameState::WaitingToStart) {
         window.draw(pressAnyKeyText);
     }
 
-    if (mGame.getState() != GameState::WaitingToStart) {
+    if (state != GameState::WaitingToStart) {
         mDealBtn.draw(window);
         window.draw(mBalanceText);
         window.draw(mCreditsText);
+        window.draw(mBetText);
+        window.draw(mBetSizeText);
 
-        if (mGame.getState() == GameState::HandEndedWin) {
+        if (state != GameState::Shuffling && state != GameState::Dealing && state != GameState::Discarding) {
+            window.draw(mInfoText);
+        }
+
+        if (state == GameState::HandEndedWin) {
             mDoubleBtn.draw(window);
             mCollectBtn.draw(window);
         }
@@ -149,6 +160,7 @@ void JacksOrBetter::subscribeEvents()
             for (auto& btn : this->mHoldBtn) {
                 btn.setActive(true);
             }
+            mInfoText.setString("Choose which cards to HOLD and press DEAL");
         }
     });
 
@@ -162,6 +174,11 @@ void JacksOrBetter::subscribeEvents()
         for (auto& btn : this->mHoldBtn) {
             btn.setActive(false);
         }
+        mInfoText.setString("No win this time. Choose your BET and press DEAL");
+    });
+
+    mEventBus.subscribe(GameEvent::HandEndedWin, [this]() {
+        mInfoText.setString("You win! GAMBLE or COLLECT?");
     });
 }
 
@@ -180,13 +197,23 @@ void JacksOrBetter::initUI()
     mCreditsText.setFillColor(sf::Color::Yellow);
     mCreditsText.setCharacterSize(20);
 
+    mBetText.setPosition({550.0f, 40.0f});
+    mBetSizeText.setPosition({615.0f, 40.0f});
+    mBetSizeText.setString(std::to_string(mGame.getBetSize()));
+    mBetSizeText.setFillColor(sf::Color::Yellow);
+    mBetSizeText.setCharacterSize(20);
+
+    mInfoText.setPosition({425.0f, 310.0f});
+    mInfoText.setOrigin(mInfoText.getLocalBounds().getCenter());
+    mInfoText.setString("Choose your BET and press DEAL");
+
     /*
     *   SETUP BUTTONS
     */
     mDealBtn.setPosition({Config::DEALBTN_XPOS, Config::DEALBTN_YPOS});
     mDealBtn.setText("DEAL");
     mDealBtn.setCallback([this]() {
-        if ( mGame.getState() == GameState::WaitingToDeal ||
+        if (mGame.getState() == GameState::WaitingToDeal ||
             mGame.getState() == GameState::HandEndedLoss ||
             mGame.getState() == GameState::HandEndedWin
         ) {
