@@ -29,6 +29,7 @@ void UI::PushButton::setCallback(std::function<void()> callback)
 void UI::PushButton::setText(const std::string &text, unsigned int size)
 {
     mHasText = true;
+    mText.setFillColor(sf::Color::Black);
     mText.setString(text);
     mText.setCharacterSize(size);
     mText.setPosition(mSprite.getGlobalBounds().getCenter());

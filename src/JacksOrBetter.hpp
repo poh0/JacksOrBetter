@@ -8,6 +8,7 @@
 #include "Game.hpp"
 #include "AnimationManager.hpp"
 #include "PushButton.hpp"
+#include "EventBus.hpp"
 
 class JacksOrBetter {
 public:
@@ -21,21 +22,28 @@ private:
     void processEvents();
     void update(float deltatime);
     void render();
-    //void resizeBackground();
-    
-    sf::RenderWindow window {};
-    sf::Sprite backgroundSprite;
+    void subscribeEvents();
+    void initUI();
 
-    sf::Text pressAnyKeyText;
+    sf::RenderWindow window {};
 
     Game mGame;
-
     AnimationManager mAnimationManager;
     ResourceManager& mResManager;
+    EventBus mEventBus;
+
+    sf::Sprite backgroundSprite;
+
+    // TEXTS
+    sf::Text pressAnyKeyText;
+    sf::Text mBalanceText;
+    sf::Text mCreditsText;
 
     // BUTTONS
     UI::PushButton mDealBtn;
     std::vector<UI::PushButton> mHoldBtn;
+    UI::PushButton mDoubleBtn;
+    UI::PushButton mCollectBtn;
 
     std::vector<UI::PushButton*> mPushButtons;
     // UI::PushButton mSettingsBtn

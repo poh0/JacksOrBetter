@@ -1,9 +1,10 @@
 #include "Game.hpp"
 #include <iostream>
 
-Game::Game(AnimationManager& animationManager) 
-    : mState(GameState::WaitingToStart), mPlayerCredits(Config::STARTING_CREDITS),
-    mAnimationManager(animationManager), mDeck(), mKeptCards(0b00000)
+Game::Game(AnimationManager& animationManager, EventBus& bus) 
+    : mState(GameState::WaitingToStart), mCredits(Config::STARTING_CREDITS),
+    mAnimationManager(animationManager), mEventBus(bus),
+    mDeck(), mKeptCards(0b00000), mBetSize(Config::DEFAULT_BET)
 {
     mDiscardPile.reserve(5);
 }
@@ -39,6 +40,12 @@ void Game::cleanup()
 
 void Game::dealHand()
 {
+    if (mCredits < mBetSize) {
+        return;
+    }
+
+    mCredits -= mBetSize;
+
     if ( (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin)) {
         cleanup();
     }
@@ -57,6 +64,8 @@ void Game::dealHand()
     }
 
     Game::addShuffleAnimations();
+    mEventBus.emit(GameEvent::CreditsChanged);
+    mEventBus.emit(GameEvent::DealingCards);
 }
 
 void Game::discardUnkeptCards()
@@ -98,6 +107,7 @@ void Game::determineWin()
 
     if (mPlayerHandRank == HandRank::Unranked) {
         mState = GameState::HandEndedLoss;
+        mEventBus.emit(GameEvent::HandEndedLoss);
         std::cout << "LOSS" << std::endl;
     } else {
         mState = GameState::HandEndedWin;
@@ -249,6 +259,7 @@ void Game::addDealAnimations()
                 } else if (this->mState == GameState::Discarding) {
                     determineWin();
                 }
+                mEventBus.emit(GameEvent::DealAnimComplete);
             });
         }
 
@@ -306,4 +317,9 @@ GameState Game::getState() const
 void Game::setState(GameState state)
 {
     mState = state;
+}
+
+int Game::getCredits() const
+{
+    return mCredits;
 }

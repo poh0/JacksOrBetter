@@ -4,6 +4,7 @@
 
 int main() {
     ResourceManager::getInstance().preloadTextures();
-    JacksOrBetter jacksOrBetter;
-    jacksOrBetter.run();
+    JacksOrBetter* jacksOrBetter = new JacksOrBetter();
+    jacksOrBetter->run();
+    delete jacksOrBetter;
 }

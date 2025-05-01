@@ -7,56 +7,20 @@ JacksOrBetter::JacksOrBetter()
         "Jacks Or Better",
         (sf::Style::Titlebar | sf::Style::Close)
     ),
-    backgroundSprite(sf::Sprite(ResourceManager::getInstance().getTexture("background"))),
-    pressAnyKeyText(sf::Text(ResourceManager::getInstance().getFont("toxi"), "Press any key to start", 30)),
-    mGame(mAnimationManager),
+    mGame(Game(mAnimationManager, mEventBus)),
     mResManager(ResourceManager::getInstance()),
-    mDealBtn(UI::PushButton(mResManager.getTexture("dealbtn_idle"), mResManager.getTexture("dealbtn_click")))
+    backgroundSprite(sf::Sprite(mResManager.getTexture("background"))),
+    pressAnyKeyText(sf::Text(mResManager.getFont("toxi"), "Press any key to start", 30)),
+    mBalanceText(sf::Text(mResManager.getFont("toxi"), "Balance: ", 18)),
+    mCreditsText(sf::Text(mResManager.getFont("toxi"), "", 18)),
+    mDealBtn(UI::PushButton(mResManager.getTexture("dealbtn_idle"), mResManager.getTexture("dealbtn_click"))),
+    mDoubleBtn(UI::PushButton(mResManager.getTexture("holdbtn_idle"), mResManager.getTexture("holdbtn_click"), 3.0f)),
+    mCollectBtn(UI::PushButton(mResManager.getTexture("holdbtn_idle"), mResManager.getTexture("holdbtn_click"), 3.0f))
 {
     window.setFramerateLimit(120);
     window.setKeyRepeatEnabled(false);
-
-    /*
-    *   SETUP TEXTS
-    */
-    sf::FloatRect textRect = pressAnyKeyText.getLocalBounds();
-    pressAnyKeyText.setOrigin(textRect.getCenter());
-    pressAnyKeyText.setPosition(window.getView().getCenter());
-
-
-    /*
-    *   SETUP BUTTONS
-    */
-    mDealBtn.setPosition({Config::DEALBTN_XPOS, Config::DEALBTN_YPOS});
-    mDealBtn.setText("DEAL");
-    mDealBtn.setCallback([this]() {
-        if ( mGame.getState() == GameState::WaitingToDeal ||
-             mGame.getState() == GameState::HandEndedLoss ||
-             mGame.getState() == GameState::HandEndedWin
-        ) {
-            mGame.dealHand();
-        }
-        else if (mGame.getState() == GameState::SelectingCardsToKeep) {
-            mGame.discardUnkeptCards();
-        }
-    });
-    mPushButtons.push_back(&mDealBtn);
-
-    mHoldBtn.reserve(5);
-    for (int i = 0; i < 5; i++) {
-        mHoldBtn.emplace_back(UI::PushButton(
-            mResManager.getTexture("holdbtn_idle"),
-            mResManager.getTexture("holdbtn_click"),
-            3.0f
-        ));
-        mHoldBtn[i].setText("HOLD");
-        mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, 580.0f});
-
-        mHoldBtn[i].setCallback([this, i]() {
-            this->mGame.toggleKeepCard(i);
-        });
-        mPushButtons.push_back(&mHoldBtn[i]);
-    }
+    initUI();
+    subscribeEvents();
 }
 
 void JacksOrBetter::run()
@@ -142,24 +106,6 @@ void JacksOrBetter::processEvents()
 void JacksOrBetter::update(float deltatime)
 {
     mAnimationManager.update(deltatime);
-    if ( mGame.getState() == GameState::WaitingToDeal ||
-        mGame.getState() == GameState::HandEndedLoss ||
-        mGame.getState() == GameState::HandEndedWin
-        ) {
-        mDealBtn.setActive(true);
-    }
-    else if (mGame.getState() == GameState::SelectingCardsToKeep) {
-        mDealBtn.setActive(true);
-        for (auto& btn : mHoldBtn) {
-            btn.setActive(true);
-        }
-    } 
-    else {
-        mDealBtn.setActive(false);
-        for (auto& btn : mHoldBtn) {
-            btn.setActive(false);
-        }
-    }
 }
 
 void JacksOrBetter::render()
@@ -173,12 +119,113 @@ void JacksOrBetter::render()
 
     if (mGame.getState() != GameState::WaitingToStart) {
         mDealBtn.draw(window);
-        for (auto& btn : mHoldBtn) {
-            btn.draw(window);
+        window.draw(mBalanceText);
+        window.draw(mCreditsText);
+
+        if (mGame.getState() == GameState::HandEndedWin) {
+            mDoubleBtn.draw(window);
+            mCollectBtn.draw(window);
+        }
+        else {
+            for (auto& btn : mHoldBtn) {
+                btn.draw(window);
+            }
         }
     }
-
     mGame.draw(window);
 
     window.display();
+}
+
+void JacksOrBetter::subscribeEvents()
+{
+    mEventBus.subscribe(GameEvent::CreditsChanged, [this]() {
+        this->mCreditsText.setString(std::to_string(mGame.getCredits()));
+    });
+
+    mEventBus.subscribe(GameEvent::DealAnimComplete, [this]() {
+        this->mDealBtn.setActive(true);
+        if (this->mGame.getState() == GameState::SelectingCardsToKeep) {
+            for (auto& btn : this->mHoldBtn) {
+                btn.setActive(true);
+            }
+        }
+    });
+
+    mEventBus.subscribe(GameEvent::DealingCards, [this]() {
+        for (auto& btn : this->mHoldBtn) {
+            btn.setActive(false);
+        }
+    });
+
+    mEventBus.subscribe(GameEvent::HandEndedLoss, [this]() {
+        for (auto& btn : this->mHoldBtn) {
+            btn.setActive(false);
+        }
+    });
+}
+
+void JacksOrBetter::initUI()
+{
+    /*
+    *   SETUP TEXTS
+    */
+    sf::FloatRect textRect = pressAnyKeyText.getLocalBounds();
+    pressAnyKeyText.setOrigin(textRect.getCenter());
+    pressAnyKeyText.setPosition(window.getView().getCenter());
+
+    mBalanceText.setPosition({250.0f, 40.0f});
+    mCreditsText.setPosition({365.0f, 40.0f});
+    mCreditsText.setString(std::to_string(mGame.getCredits()));
+    mCreditsText.setFillColor(sf::Color::Yellow);
+    mCreditsText.setCharacterSize(20);
+
+    /*
+    *   SETUP BUTTONS
+    */
+    mDealBtn.setPosition({Config::DEALBTN_XPOS, Config::DEALBTN_YPOS});
+    mDealBtn.setText("DEAL");
+    mDealBtn.setCallback([this]() {
+        if ( mGame.getState() == GameState::WaitingToDeal ||
+            mGame.getState() == GameState::HandEndedLoss ||
+            mGame.getState() == GameState::HandEndedWin
+        ) {
+            mGame.dealHand();
+            mCreditsText.setString(std::to_string(mGame.getCredits()));
+        }
+        else if (mGame.getState() == GameState::SelectingCardsToKeep) {
+            mGame.discardUnkeptCards();
+        }
+    });
+    mPushButtons.push_back(&mDealBtn);
+
+    mHoldBtn.reserve(5);
+    for (int i = 0; i < 5; i++) {
+        mHoldBtn.emplace_back(UI::PushButton(
+            mResManager.getTexture("holdbtn_idle"),
+            mResManager.getTexture("holdbtn_click"),
+            3.0f
+        ));
+        mHoldBtn[i].setText("HOLD");
+        mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, 580.0f});
+
+        mHoldBtn[i].setCallback([this, i]() {
+            this->mGame.toggleKeepCard(i);
+        });
+        mPushButtons.push_back(&mHoldBtn[i]);
+    }
+
+    mDoubleBtn.setPosition({
+        Config::HAND_X_POS - 60.0f + Config::HAND_X_OFFSET*2,
+        580.0f
+    });
+    mDoubleBtn.setText("GAMBLE?");
+    mPushButtons.push_back(&mDoubleBtn);
+
+    mCollectBtn.setPosition({
+        Config::HAND_X_POS - 60.0f + Config::HAND_X_OFFSET*3,
+        580.0f
+    });
+    mCollectBtn.setText("COLLECT");
+    mPushButtons.push_back(&mCollectBtn);
 }

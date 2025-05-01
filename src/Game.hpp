@@ -11,6 +11,7 @@
 #include "MoveBehavior.hpp"
 #include "RotationBehavior.hpp"
 #include "HandEvaluator.hpp"
+#include "EventBus.hpp"
 
 enum class GameState {
     WaitingToStart,
@@ -30,7 +31,7 @@ enum class GameState {
 class Game {
 public:
 
-    Game(AnimationManager& animationManager);
+    Game(AnimationManager& animationManager, EventBus& bus);
 
     void start();
 
@@ -57,6 +58,8 @@ public:
     GameState getState() const;
     void setState(GameState state);
 
+    int getCredits() const;
+
 private:
 
     GameState mState;
@@ -71,6 +74,8 @@ private:
     std::vector<Card> mDiscardPile;
 
     AnimationManager& mAnimationManager;
+    EventBus& mEventBus;
 
-    int mPlayerCredits;
+    int mCredits;
+    int mBetSize;
 };
