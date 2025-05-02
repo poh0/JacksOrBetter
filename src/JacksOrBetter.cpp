@@ -220,6 +220,7 @@ void JacksOrBetter::initUI()
             mGame.getState() == GameState::HandEndedWin  ||
             mGame.getState() == GameState::CollectedWin
         ) {
+            if (mGame.getState() == GameState::CollectedWin) mGame.collectWinnings();
             mGame.dealHand();
             mCreditsText.setString(std::to_string(mGame.getCredits()));
         }
