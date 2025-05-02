@@ -1,6 +1,31 @@
 #include "Game.hpp"
 #include <iostream>
 
+const std::unordered_map<HandRank, int> Game::mPayoutTable = {
+    { HandRank::Unranked, 0 },
+    { HandRank::OnePairJacksOrBetter, 1 },
+    { HandRank::TwoPair, 2 },
+    { HandRank::ThreeOfAKind, 3 },
+    { HandRank::Straight, 4 },
+    { HandRank::Flush, 6 },
+    { HandRank::FullHouse, 9 },
+    { HandRank::FourOfAKind, 25},
+    { HandRank::StraightFlush, 50 },
+    { HandRank::RoyalFlush, 800 }
+};
+
+const std::unordered_map<HandRank, std::string> Game::mHandRankStr = {
+    { HandRank::OnePairJacksOrBetter, "Jacks or Better" },
+    { HandRank::TwoPair, "Two Pair" },
+    { HandRank::ThreeOfAKind, "Three of a Kind" },
+    { HandRank::Straight, "Straight" },
+    { HandRank::Flush, "Flush" },
+    { HandRank::FullHouse, "Full House" },
+    { HandRank::FourOfAKind, "Four of a Kind"},
+    { HandRank::StraightFlush, "Straight Flush" },
+    { HandRank::RoyalFlush, "Royal Flush" }
+};
+
 Game::Game(AnimationManager& animationManager, EventBus& bus) 
     : mState(GameState::WaitingToStart), mCredits(Config::STARTING_CREDITS),
     mAnimationManager(animationManager), mEventBus(bus),
@@ -46,7 +71,7 @@ void Game::dealHand()
 
     mCredits -= mBetSize;
 
-    if ( (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin)) {
+    if ( (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin) || mState == GameState::CollectedWin ) {
         cleanup();
     }
     mState = GameState::Shuffling;
@@ -99,6 +124,7 @@ void Game::discardUnkeptCards()
 
     addDealAnimations();
     mKeptCards.reset(); // reset mKeptCards to all 0 (false)
+    mEventBus.emit(GameEvent::DealingCards);
 }
 
 void Game::determineWin()
@@ -108,11 +134,9 @@ void Game::determineWin()
     if (mPlayerHandRank == HandRank::Unranked) {
         mState = GameState::HandEndedLoss;
         mEventBus.emit(GameEvent::HandEndedLoss);
-        std::cout << "LOSS" << std::endl;
     } else {
         mState = GameState::HandEndedWin;
         mEventBus.emit(GameEvent::HandEndedWin);
-        std::cout << "VICTORY: " << static_cast<int>(mPlayerHandRank) << std::endl;
     }
 }
 
@@ -127,6 +151,13 @@ void Game::toggleKeepCard(int index)
     addKeepAnimation(index, !mKeptCards[index]);
 }
 
+void Game::collectWinnings()
+{
+    if (mState != GameState::HandEndedWin) return;
+    mCredits += getWinSize(mPlayerHandRank);
+    mState = GameState::CollectedWin;
+}
+
 void Game::draw(sf::RenderWindow &window)
 {
     if (mState == GameState::WaitingToStart)
@@ -136,7 +167,12 @@ void Game::draw(sf::RenderWindow &window)
 
     mDeck.draw(window);
 
-    if ( (mState == GameState::Dealing) || (mState == GameState::SelectingCardsToKeep) || (mState == GameState::HandEndedLoss) || (mState == GameState::Discarding) ||(mState == GameState::HandEndedWin))
+    if ((mState == GameState::CollectedWin) ||
+        (mState == GameState::Dealing) ||
+        (mState == GameState::SelectingCardsToKeep) ||
+        (mState == GameState::HandEndedLoss) ||
+        (mState == GameState::Discarding) ||
+        (mState == GameState::HandEndedWin))
     {
         mPlayerHand.draw(window);
     }
@@ -328,4 +364,14 @@ int Game::getCredits() const
 int Game::getBetSize() const
 {
     return mBetSize;
+}
+
+int Game::getWinSize(HandRank rank) const
+{
+    return mPayoutTable.at(rank) * mBetSize;
+}
+
+HandRank Game::getHandRank() const
+{
+    return mPlayerHandRank;
 }

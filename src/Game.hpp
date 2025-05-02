@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <bitset>
+#include <unordered_map>
 
 #include "Deck.hpp"
 #include "Hand.hpp"
@@ -22,6 +23,7 @@ enum class GameState {
     Discarding,
     HandEndedWin,
     HandEndedLoss,
+    CollectedWin,
     Doubling,
     DoubleSuccess,
     DoubleTie,
@@ -33,33 +35,34 @@ public:
 
     Game(AnimationManager& animationManager, EventBus& bus);
 
+    // Game logic functions
     void start();
-
     void cleanup();
-
-    void initGame();
     void dealHand();
-
     void discardUnkeptCards();
-
     void determineWin();
-
     void toggleKeepCard(int index);
+    void collectWinnings();
 
+    // rendering
     void draw(sf::RenderWindow &window);
 
+    // Animations
     void setStackEffectPositions();
     void addShuffleAnimations();
     void addDealAnimations();
     void addKeepAnimation(int index, bool reverse = false, std::function<void()> callback = nullptr);
 
+    // input handling
     void leftMouseClick(sf::Vector2f pos);
 
+    // getters & setters
     GameState getState() const;
     void setState(GameState state);
-
     int getCredits() const;
     int getBetSize() const;
+    int getWinSize(HandRank rank) const;
+    HandRank getHandRank() const;
 
 private:
 
@@ -76,6 +79,9 @@ private:
 
     AnimationManager& mAnimationManager;
     EventBus& mEventBus;
+
+    static const std::unordered_map<HandRank, int> mPayoutTable;
+    static const std::unordered_map<HandRank, std::string> mHandRankStr;
 
     int mCredits;
     int mBetSize;

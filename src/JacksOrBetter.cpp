@@ -178,7 +178,9 @@ void JacksOrBetter::subscribeEvents()
     });
 
     mEventBus.subscribe(GameEvent::HandEndedWin, [this]() {
-        mInfoText.setString("You win! GAMBLE or COLLECT?");
+        this->mCollectBtn.setActive(true);
+        this->mDoubleBtn.setActive(true);
+        mInfoText.setString("You win " + std::to_string(mGame.getWinSize(mGame.getHandRank())) + "! GAMBLE or COLLECT?");
     });
 }
 
@@ -215,7 +217,8 @@ void JacksOrBetter::initUI()
     mDealBtn.setCallback([this]() {
         if (mGame.getState() == GameState::WaitingToDeal ||
             mGame.getState() == GameState::HandEndedLoss ||
-            mGame.getState() == GameState::HandEndedWin
+            mGame.getState() == GameState::HandEndedWin  ||
+            mGame.getState() == GameState::CollectedWin
         ) {
             mGame.dealHand();
             mCreditsText.setString(std::to_string(mGame.getCredits()));
@@ -254,5 +257,13 @@ void JacksOrBetter::initUI()
         580.0f
     });
     mCollectBtn.setText("COLLECT");
+    mCollectBtn.setCallback([this]() {
+        this->mCollectBtn.setActive(false);
+        this->mDoubleBtn.setActive(false);
+        this->mGame.collectWinnings();
+        this->mCreditsText.setString(std::to_string(mGame.getCredits()));
+        this->mInfoText.setString("Choose your BET and press DEAL");
+    });
+
     mPushButtons.push_back(&mCollectBtn);
 }
