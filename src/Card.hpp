@@ -50,6 +50,9 @@ public:
     static sf::IntRect getCardTextureRect(CardValue value, Suit suit);
     static const sf::Vector2i getCardBackTextureOffset();
 
+    bool operator> (const Card& other) const;
+    bool operator< (const Card& other) const { return (other > *this); }
+
 public:
     bool contains(sf::Vector2f pos) const; // for mouse click
 

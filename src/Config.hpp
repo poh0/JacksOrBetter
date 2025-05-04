@@ -9,7 +9,7 @@ namespace Config {
 
     // todo: dynamic settings
     // settings
-    constexpr bool ACE_IS_1_IN_GAMBLE = false; // Todo
+    constexpr bool ACE_IS_1_IN_GAMBLE = true; // Todo
     constexpr unsigned int STARTING_CREDITS = 1000;
     constexpr int DEFAULT_BET = 20;
 
@@ -31,7 +31,7 @@ namespace Config {
     constexpr int CARDS_VISIBLE_IN_DECK = 4;
 
     constexpr float CARD_MOVE_DURATION = 0.2f;
-    constexpr float CARD_FLIP_DURATION = 0.14f;
+    constexpr float CARD_FLIP_DURATION = 0.24f;
     constexpr float SHUFFLE_DURATION = 0.30f;
 
     constexpr float TOPBAR_HEIGHT = 60.0f; 

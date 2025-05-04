@@ -9,7 +9,9 @@ enum class GameEvent {
     CreditsChanged,
     DealingCards,
     HandEndedLoss,
-    HandEndedWin
+    HandEndedWin,
+    DoubleSuccess,
+    DoubleFailed,
 };
 
 class EventBus {

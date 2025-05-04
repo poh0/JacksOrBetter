@@ -19,6 +19,10 @@ HandRank HandEvaluator::evaluateHand(Hand& hand) {
         }
     }
 
+    if (rankNoFlush == HandRank::RoyalStraight) {
+        return HandRank::Straight;
+    }
+
     return rankNoFlush; // Default case
 }
 

@@ -69,3 +69,11 @@ bool Card::contains(sf::Vector2f pos) const
     if (!mSprite) return false;
     return mSprite->getGlobalBounds().contains(pos);
 }
+
+bool Card::operator> (const Card &other) const
+{
+    return (
+          ((this->getValue() == CardValue::Ace && !Config::ACE_IS_1_IN_GAMBLE) ? 14 : static_cast<int>(this->getValue()))
+        > ((other.getValue() == CardValue::Ace && !Config::ACE_IS_1_IN_GAMBLE) ? 14 : static_cast<int>(other.getValue()))
+    );
+}

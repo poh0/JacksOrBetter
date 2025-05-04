@@ -38,20 +38,24 @@ public:
     // Game logic functions
     void start();
     void cleanup();
-    void dealHand();
+    void dealHand(bool doubling = false);
     void discardUnkeptCards();
     void determineWin();
     void toggleKeepCard(int index);
     void collectWinnings();
+    void dealDoublingHand();
+    void selectGambleCard(int index);
+    void determineGambleResult(int index);
 
     // rendering
     void draw(sf::RenderWindow &window);
 
     // Animations
     void setStackEffectPositions();
-    void addShuffleAnimations();
+    void addShuffleAnimations(bool doubling = false);
     void addDealAnimations();
     void addKeepAnimation(int index, bool reverse = false, std::function<void()> callback = nullptr);
+    void addDoubleDealAnims();
 
     // input handling
     void leftMouseClick(sf::Vector2f pos);
@@ -63,6 +67,7 @@ public:
     int getBetSize() const;
     int getWinSize(HandRank rank) const;
     HandRank getHandRank() const;
+    int getCurrentWin() const;
 
 private:
 
@@ -85,4 +90,5 @@ private:
 
     int mCredits;
     int mBetSize;
+    int mCurrentWin;
 };

@@ -1,5 +1,6 @@
 #include "JacksOrBetter.hpp"
 #include "ResourceManager.hpp"
+#include <iostream>
 
 JacksOrBetter::JacksOrBetter() 
     : window(
@@ -133,7 +134,7 @@ void JacksOrBetter::render()
             window.draw(mInfoText);
         }
 
-        if (state == GameState::HandEndedWin) {
+        if (state == GameState::HandEndedWin || state == GameState::DoubleSuccess ) {
             mDoubleBtn.draw(window);
             mCollectBtn.draw(window);
         }
@@ -162,6 +163,15 @@ void JacksOrBetter::subscribeEvents()
             }
             mInfoText.setString("Choose which cards to HOLD and press DEAL");
         }
+        else if (this->mGame.getState() == GameState::Doubling) {
+            for (size_t i = 0; i < 5; i++) {
+                if (i == 0) {
+                    continue;
+                }
+                mHoldBtn[i].setActive(true);
+            }
+            mInfoText.setString("CHOOSE a card higher than the dealer's card");
+        }
     });
 
     mEventBus.subscribe(GameEvent::DealingCards, [this]() {
@@ -180,7 +190,21 @@ void JacksOrBetter::subscribeEvents()
     mEventBus.subscribe(GameEvent::HandEndedWin, [this]() {
         this->mCollectBtn.setActive(true);
         this->mDoubleBtn.setActive(true);
-        mInfoText.setString("You win " + std::to_string(mGame.getWinSize(mGame.getHandRank())) + "! GAMBLE or COLLECT?");
+        mInfoText.setString("You win " + std::to_string(mGame.getCurrentWin()) + "! GAMBLE or COLLECT?");
+    });
+
+    mEventBus.subscribe(GameEvent::DoubleSuccess, [this]() {
+        this->mCollectBtn.setActive(true);
+        this->mDoubleBtn.setActive(true);
+        mInfoText.setString("You win " + std::to_string(mGame.getCurrentWin()) + "! GAMBLE or COLLECT?");
+    });
+
+    mEventBus.subscribe(GameEvent::DoubleFailed, [this]() {
+        for (auto& btn : this->mHoldBtn) {
+            btn.setActive(false);
+            btn.setText("HOLD");
+        }
+        mInfoText.setString("No win this time. Choose your BET and press DEAL");
     });
 }
 
@@ -218,6 +242,7 @@ void JacksOrBetter::initUI()
         if (mGame.getState() == GameState::WaitingToDeal ||
             mGame.getState() == GameState::HandEndedLoss ||
             mGame.getState() == GameState::HandEndedWin  ||
+            mGame.getState() == GameState::DoubleFail  ||
             mGame.getState() == GameState::CollectedWin
         ) {
             if (mGame.getState() == GameState::CollectedWin) mGame.collectWinnings();
@@ -241,7 +266,11 @@ void JacksOrBetter::initUI()
         mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, 580.0f});
 
         mHoldBtn[i].setCallback([this, i]() {
-            this->mGame.toggleKeepCard(i);
+            if (this->mGame.getState() == GameState::SelectingCardsToKeep) {
+                this->mGame.toggleKeepCard(i);
+            } else if (this->mGame.getState() == GameState::Doubling) {
+                this->mGame.selectGambleCard(i);
+            }
         });
         mPushButtons.push_back(&mHoldBtn[i]);
     }
@@ -251,6 +280,23 @@ void JacksOrBetter::initUI()
         580.0f
     });
     mDoubleBtn.setText("GAMBLE?");
+    mDoubleBtn.setCallback([this]() {
+        this->mDoubleBtn.setActive(false);
+        this->mCollectBtn.setActive(false);
+        for (size_t i = 0; i < 5; i++) {
+            auto& btn = this->mHoldBtn[i];
+            if (i == 0) {
+                btn.setText("");
+                btn.setActive(false);
+            } else {
+                btn.setText("CHOOSE");
+                btn.setActive(false);
+            }
+        }
+        this->mGame.dealDoublingHand();
+    });
+    mDoubleBtn.setActive(false);
+
     mPushButtons.push_back(&mDoubleBtn);
 
     mCollectBtn.setPosition({
@@ -265,6 +311,7 @@ void JacksOrBetter::initUI()
         this->mCreditsText.setString(std::to_string(mGame.getCredits()));
         this->mInfoText.setString("Choose your BET and press DEAL");
     });
+    mCollectBtn.setActive(false);
 
     mPushButtons.push_back(&mCollectBtn);
 }

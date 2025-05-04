@@ -27,7 +27,7 @@ void Deck::reset()
 
 }
 
-std::vector<Card> &Deck::getCards()
+std::vector<Card>& Deck::getCards()
 {
     // TODO: insert return statement here
     return m_Cards;
