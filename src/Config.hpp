@@ -20,10 +20,10 @@ namespace Config {
     // -
 
     constexpr int HAND_X_POS = 245;
-    constexpr int HAND_Y_POS = 450;
+    constexpr int HAND_Y_POS = 480;
 
-    constexpr int DECK_YPOS = 200;
-    constexpr int DECK_XPOS = 300;
+    constexpr int DECK_YPOS = 233;
+    constexpr int DECK_XPOS = 318;
 
     constexpr int DEALBTN_XPOS = 1000;
     constexpr int DEALBTN_YPOS = 580;

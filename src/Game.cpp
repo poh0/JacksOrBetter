@@ -189,12 +189,23 @@ void Game::selectGambleCard(int index)
         sprite,
         std::make_unique<RotationBehavior>(
             sprite.getRotation3d(),
-            sf::Vector3f{0.0f, 0.0f, 0.0f}
+            sf::Vector3f{0.0f, 100.0f, 0.0f}
         ),
         0.0f,
-        0.5f
+        0.8f
     );
-    anim1->setCallback([this, index]() {
+
+    auto anim2 = std::make_unique<Animation>(
+        sprite,
+        std::make_unique<RotationBehavior>(
+            sf::Vector3f{0.0f, 100.0f, 0.0f},
+            sf::Vector3f{0.0f, 0.0f, 0.0f}
+        ),
+        0.8f,
+        0.1f
+    );
+
+    anim2->setCallback([this, index]() {
         auto& hand = mPlayerHand.getCards();
         if (hand[0] < hand[index]) {
             this->mState = GameState::DoubleSuccess;
@@ -204,10 +215,14 @@ void Game::selectGambleCard(int index)
             this->mState = GameState::DoubleFail;
             mEventBus.emit(GameEvent::DoubleFailed);
         } else {
-            this->mState = GameState::DoubleTie;
+            this->mState = GameState::DoubleSuccess;
+
+            // Temporarily treat tie as a success without incrementing currentWin
+            mEventBus.emit(GameEvent::DoubleSuccess);
         }
     });
     mAnimationManager.addAnimation(std::move(anim1));
+    mAnimationManager.addAnimation(std::move(anim2));
 }
 
 void Game::determineGambleResult(int index)
@@ -263,7 +278,7 @@ void Game::addShuffleAnimations(bool doubling)
     sf::Vector2f deltaY{0.0f, 20.0f};
 
     sf::Vector2f bottomSpritePos = mDeck.getCards()[0].getSprite().getPosition();
-    for (size_t i = 0; i < Config::CARDS_VISIBLE_IN_DECK; ++i) {
+    for (size_t i = 1; i < Config::CARDS_VISIBLE_IN_DECK; ++i) {
 
         sw::Sprite3d& sprite = mDeck.getCards()[i].getSprite();
 
@@ -452,6 +467,16 @@ void Game::leftMouseClick(sf::Vector2f pos)
         for (auto& card : mPlayerHand.getCards()) {
             if (card.contains(pos)) {
                 toggleKeepCard(idx);
+                break;
+            }
+            idx++;
+        }
+    }
+    else if (mState == GameState::Doubling) {
+        int idx = 0;
+        for (auto& card : mPlayerHand.getCards()) {
+            if (card.contains(pos)) {
+                selectGambleCard(idx);
                 break;
             }
             idx++;

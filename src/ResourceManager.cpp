@@ -9,7 +9,7 @@ void ResourceManager::preloadTextures() {
     fonts["toxi"] = sf::Font("res/toxigenesis bd.otf");
     //warning C4834: discarding return value of function with [[nodiscard]] attribute
     textures["cards"].loadFromFile("res/cards_sheet2.png");
-    textures["background"].loadFromFile("res/background.jpg");
+    textures["background"].loadFromFile("res/bkg2.png");
     textures["dealbtn_idle"].loadFromFile("res/Idle2x.png");
     textures["dealbtn_click"].loadFromFile("res/Click2x.png");
     textures["holdbtn_idle"].loadFromFile("res/Idle.png");

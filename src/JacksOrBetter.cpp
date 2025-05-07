@@ -5,8 +5,8 @@
 JacksOrBetter::JacksOrBetter() 
     : window(
         sf::VideoMode({Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT}), 
-        "Jacks Or Better",
-        (sf::Style::Titlebar | sf::Style::Close)
+        "Jacks Or Better"
+        
     ),
     mGame(Game(mAnimationManager, mEventBus)),
     mResManager(ResourceManager::getInstance()),
@@ -217,19 +217,19 @@ void JacksOrBetter::initUI()
     pressAnyKeyText.setOrigin(textRect.getCenter());
     pressAnyKeyText.setPosition(window.getView().getCenter());
 
-    mBalanceText.setPosition({250.0f, 40.0f});
-    mCreditsText.setPosition({365.0f, 40.0f});
+    mBalanceText.setPosition({250.0f, 33.0f});
+    mCreditsText.setPosition({365.0f, 33.0f});
     mCreditsText.setString(std::to_string(mGame.getCredits()));
     mCreditsText.setFillColor(sf::Color::Yellow);
     mCreditsText.setCharacterSize(20);
 
-    mBetText.setPosition({550.0f, 40.0f});
-    mBetSizeText.setPosition({615.0f, 40.0f});
+    mBetText.setPosition({550.0f, 33.0f});
+    mBetSizeText.setPosition({615.0f, 33.0f});
     mBetSizeText.setString(std::to_string(mGame.getBetSize()));
     mBetSizeText.setFillColor(sf::Color::Yellow);
     mBetSizeText.setCharacterSize(20);
 
-    mInfoText.setPosition({425.0f, 310.0f});
+    mInfoText.setPosition({410.0f, 347.0f});
     mInfoText.setOrigin(mInfoText.getLocalBounds().getCenter());
     mInfoText.setString("Choose your BET and press DEAL");
 
@@ -263,7 +263,7 @@ void JacksOrBetter::initUI()
             3.0f
         ));
         mHoldBtn[i].setText("HOLD");
-        mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, 580.0f});
+        mHoldBtn[i].setPosition({Config::HAND_X_POS - 60.0f + (Config::HAND_X_OFFSET) * (float)i, Config::HAND_Y_POS + 128.0f});
 
         mHoldBtn[i].setCallback([this, i]() {
             if (this->mGame.getState() == GameState::SelectingCardsToKeep) {
@@ -310,6 +310,10 @@ void JacksOrBetter::initUI()
         this->mGame.collectWinnings();
         this->mCreditsText.setString(std::to_string(mGame.getCredits()));
         this->mInfoText.setString("Choose your BET and press DEAL");
+        for (auto& btn : this->mHoldBtn) {
+            btn.setActive(false);
+            btn.setText("HOLD");
+        }
     });
     mCollectBtn.setActive(false);
 
