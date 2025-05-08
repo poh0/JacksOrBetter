@@ -116,6 +116,7 @@ void JacksOrBetter::render()
 {
     window.clear();
     window.draw(backgroundSprite);
+    mGame.draw(window);
 
     GameState state = mGame.getState();
 
@@ -129,6 +130,15 @@ void JacksOrBetter::render()
         window.draw(mCreditsText);
         window.draw(mBetText);
         window.draw(mBetSizeText);
+
+        if (state == GameState::SelectingCardsToKeep) {
+            auto& keptcards = mGame.getKeptBitset();
+            for (int i = 0; i < 5; i++) {
+                if (keptcards[i]) {
+                    window.draw(mHeldIndicators[i]);
+                }
+            }
+        }
 
         if (state != GameState::Shuffling && state != GameState::Dealing && state != GameState::Discarding) {
             window.draw(mInfoText);
@@ -144,7 +154,6 @@ void JacksOrBetter::render()
             }
         }
     }
-    mGame.draw(window);
 
     window.display();
 }
@@ -217,14 +226,14 @@ void JacksOrBetter::initUI()
     pressAnyKeyText.setOrigin(textRect.getCenter());
     pressAnyKeyText.setPosition(window.getView().getCenter());
 
-    mBalanceText.setPosition({250.0f, 33.0f});
-    mCreditsText.setPosition({365.0f, 33.0f});
+    mBalanceText.setPosition({250.0f, 27.0f});
+    mCreditsText.setPosition({365.0f, 27.0f});
     mCreditsText.setString(std::to_string(mGame.getCredits()));
     mCreditsText.setFillColor(sf::Color::Yellow);
     mCreditsText.setCharacterSize(20);
 
-    mBetText.setPosition({550.0f, 33.0f});
-    mBetSizeText.setPosition({615.0f, 33.0f});
+    mBetText.setPosition({550.0f, 27.0f});
+    mBetSizeText.setPosition({615.0f, 27.0f});
     mBetSizeText.setString(std::to_string(mGame.getBetSize()));
     mBetSizeText.setFillColor(sf::Color::Yellow);
     mBetSizeText.setCharacterSize(20);
@@ -272,12 +281,13 @@ void JacksOrBetter::initUI()
                 this->mGame.selectGambleCard(i);
             }
         });
+        mHoldBtn[i].setActive(false);
         mPushButtons.push_back(&mHoldBtn[i]);
     }
 
     mDoubleBtn.setPosition({
         Config::HAND_X_POS - 60.0f + Config::HAND_X_OFFSET*2,
-        580.0f
+        Config::HAND_Y_POS + 128.0f
     });
     mDoubleBtn.setText("GAMBLE?");
     mDoubleBtn.setCallback([this]() {
@@ -301,7 +311,7 @@ void JacksOrBetter::initUI()
 
     mCollectBtn.setPosition({
         Config::HAND_X_POS - 60.0f + Config::HAND_X_OFFSET*3,
-        580.0f
+        Config::HAND_Y_POS + 128.0f
     });
     mCollectBtn.setText("COLLECT");
     mCollectBtn.setCallback([this]() {
@@ -318,4 +328,9 @@ void JacksOrBetter::initUI()
     mCollectBtn.setActive(false);
 
     mPushButtons.push_back(&mCollectBtn);
+
+    for (int i = 0; i < 5; i++) {
+        mHeldIndicators.emplace_back(sf::Sprite(mResManager.getTexture("held_indicator")));
+        mHeldIndicators[i].setPosition({ Config::HAND_X_POS + (Config::HAND_X_OFFSET)*i -80.0f, Config::HAND_Y_POS});
+    }
 }

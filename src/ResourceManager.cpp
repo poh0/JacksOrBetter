@@ -14,6 +14,7 @@ void ResourceManager::preloadTextures() {
     textures["dealbtn_click"].loadFromFile("res/Click2x.png");
     textures["holdbtn_idle"].loadFromFile("res/Idle.png");
     textures["holdbtn_click"].loadFromFile("res/Click.png");
+    textures["held_indicator"].loadFromFile("res/held.png");
 }
 
 sf::Texture& ResourceManager::getTexture(const std::string& key) {

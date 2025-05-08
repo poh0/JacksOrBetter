@@ -390,7 +390,7 @@ void Game::addKeepAnimation(int index, bool reverse, std::function<void()> callb
 {
     sw::Sprite3d &sprite = mPlayerHand.getCards()[index].getSprite();
 
-    sf::Vector2f deltaY = {0.0f, (reverse ? -20.0f : 20.0f)};
+    sf::Vector2f deltaY = {0.0f, (reverse ? -10.0f : 10.0f)};
     sf::Vector2f newPos = sprite.getPosition() + deltaY;
 
     auto moveAnimation = std::make_unique<Animation>(
@@ -517,4 +517,9 @@ HandRank Game::getHandRank() const
 int Game::getCurrentWin() const
 {
     return mCurrentWin;
+}
+
+const std::bitset<5> &Game::getKeptBitset() const
+{
+    return mKeptCards;
 }

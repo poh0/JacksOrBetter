@@ -68,6 +68,7 @@ public:
     int getWinSize(HandRank rank) const;
     HandRank getHandRank() const;
     int getCurrentWin() const;
+    const std::bitset<5>& getKeptBitset() const;
 
 private:
 

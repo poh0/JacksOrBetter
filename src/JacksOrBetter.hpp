@@ -33,6 +33,7 @@ private:
     EventBus mEventBus;
 
     sf::Sprite backgroundSprite;
+    std::vector<sf::Sprite> mHeldIndicators;
 
     // TEXTS
     sf::Text pressAnyKeyText;
