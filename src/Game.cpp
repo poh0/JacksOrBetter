@@ -71,7 +71,7 @@ void Game::dealHand(bool doubling)
 
     mCredits -= mBetSize;
 
-    if ( (mState == GameState::DoubleFail) || (mState == GameState::HandEndedLoss) || (mState == GameState::HandEndedWin) || mState == GameState::CollectedWin ) {
+    if ( mState != GameState::SelectingCardsToKeep && mState != GameState::WaitingToDeal ) {
         cleanup();
     }
     mState = GameState::Shuffling;
@@ -207,13 +207,27 @@ void Game::selectGambleCard(int index)
 
     anim2->setCallback([this, index]() {
         auto& hand = mPlayerHand.getCards();
+        GameEvent event;
+        if (hand[0] < hand[index]) {
+            this->mState = GameState::DoubleSuccess;
+            mCurrentWin *= 2;
+            event = GameEvent::DoubleSuccess;
+        } else if (hand[0] > hand[index]) {
+            this->mState = GameState::DoubleFail;
+            event = GameEvent::DoubleFailed;
+        } else {
+            this->mState = GameState::DoubleSuccess;
 
+            // Temporarily treat tie as a success without incrementing currentWin
+            event = GameEvent::DoubleSuccess;
+        }
+
+        bool callbackIsSet = false;
         for (auto& c : hand) {
             sw::Sprite3d& target = c.getSprite();
             if (target.getRotation3d() == sf::Vector3f{0.0f, 0.0f, 0.0f}) {
                 continue;
             }
-            
             auto flip = std::make_unique<Animation>(
                 target,
                 std::make_unique<RotationBehavior>(
@@ -223,21 +237,14 @@ void Game::selectGambleCard(int index)
                 0.0f,
                 0.4f
             );
+
+            if (!callbackIsSet) {
+                flip->setCallback([this, event]() {
+                    mEventBus.emit(event);
+                });
+            }
+
             mAnimationManager.addAnimation(std::move(flip));
-        }
-
-        if (hand[0] < hand[index]) {
-            this->mState = GameState::DoubleSuccess;
-            mCurrentWin *= 2;
-            mEventBus.emit(GameEvent::DoubleSuccess);
-        } else if (hand[0] > hand[index]) {
-            this->mState = GameState::DoubleFail;
-            mEventBus.emit(GameEvent::DoubleFailed);
-        } else {
-            this->mState = GameState::DoubleSuccess;
-
-            // Temporarily treat tie as a success without incrementing currentWin
-            mEventBus.emit(GameEvent::DoubleSuccess);
         }
     });
     mAnimationManager.addAnimation(std::move(anim1));

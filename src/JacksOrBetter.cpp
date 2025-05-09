@@ -278,6 +278,9 @@ void JacksOrBetter::initUI()
             if (this->mGame.getState() == GameState::SelectingCardsToKeep) {
                 this->mGame.toggleKeepCard(i);
             } else if (this->mGame.getState() == GameState::Doubling) {
+                for (auto& btn : mHoldBtn) {
+                    btn.setActive(false);
+                }
                 this->mGame.selectGambleCard(i);
             }
         });
