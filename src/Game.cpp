@@ -207,6 +207,25 @@ void Game::selectGambleCard(int index)
 
     anim2->setCallback([this, index]() {
         auto& hand = mPlayerHand.getCards();
+
+        for (auto& c : hand) {
+            sw::Sprite3d& target = c.getSprite();
+            if (target.getRotation3d() == sf::Vector3f{0.0f, 0.0f, 0.0f}) {
+                continue;
+            }
+            
+            auto flip = std::make_unique<Animation>(
+                target,
+                std::make_unique<RotationBehavior>(
+                    target.getRotation3d(),
+                    sf::Vector3f{0.0f, 0.0f, 0.0f}
+                ),
+                0.0f,
+                0.4f
+            );
+            mAnimationManager.addAnimation(std::move(flip));
+        }
+
         if (hand[0] < hand[index]) {
             this->mState = GameState::DoubleSuccess;
             mCurrentWin *= 2;
@@ -354,7 +373,7 @@ void Game::addDealAnimations()
                 sprite.getPosition(),
                 newPos
             ),
-            static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION),
+            static_cast<float>(idxForDelay) * Config::CARD_MOVE_DURATION,
             Config::CARD_MOVE_DURATION
         );
 
@@ -364,8 +383,8 @@ void Game::addDealAnimations()
                 sprite.getRotation3d(),
                 sf::Vector3f{0.0f, 0.0f, 0.0f}
             ),
-            (static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
-            Config::CARD_MOVE_DURATION
+            (static_cast<float>(idxForDelay+ 5 - mKeptCards.count()) * (Config::CARD_MOVE_DURATION)+0.1f),
+            Config::CARD_FLIP_DURATION
         );
 
         if (i == lastAnimIdx) {
@@ -428,7 +447,7 @@ void Game::addDoubleDealAnims()
                 sprite.getPosition(),
                 newPos
             ),
-            static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION),
+            static_cast<float>(idxForDelay) * (Config::CARD_MOVE_DURATION),
             Config::CARD_MOVE_DURATION
         );
 
@@ -448,8 +467,8 @@ void Game::addDoubleDealAnims()
                     sprite.getRotation3d(),
                     sf::Vector3f{0.0f, 0.0f, 0.0f}
                 ),
-                (static_cast<float>(idxForDelay) * (Config::CARD_FLIP_DURATION + Config::CARD_MOVE_DURATION)) + Config::CARD_MOVE_DURATION,
-                Config::CARD_MOVE_DURATION
+                Config::CARD_MOVE_DURATION*5,
+                Config::CARD_FLIP_DURATION
             );
             mAnimationManager.addAnimation(std::move(flipAnimation));
         }
