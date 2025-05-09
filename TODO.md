@@ -1,16 +1,21 @@
 # TODO
 
-## IMPORTANT
-- [ ] Increase readability before it's too late. This includes:
-    - [ ] Edit the code to be consistent with style, naming conventions etc.
-    - [ ] Add comments, there's currently almost none.
-- [ ] Do a full blown cleanup. There are missing a lot of checking for e.g. out of bounds.
+## Code
+- [ ] Edit the code to be consistent with style, naming conventions etc.
+- [ ] Add comments, there's currently almost none.
+- [ ] Refactor Game class animation functions
 
-## Features to Implement
+## Engine
+- [x] UI manager and user input handling
+- [ ] Support for sound effects and background music
+- [ ] Rewrite HandEvaluator class to enable auto-holding valuable cards
+
+## Features & UI
 - [ ] Add sound effects and music.
-- [ ] Create a bet/payout system.
-- [ ] Create doubling/gambling system
-- [ ] Design a user interface and create some sort of UI manager thingy.
+- [x] Create a bet/payout system.
+- [x] Create doubling/gambling system
+- [ ] Redesign UI (buttons, background, cards etc.) (WORK IN PROGRESS)
+- [ ] Auto-hold cards that make a valuable hand
 
 ## Documentation
 - [ ] Write a README file.
