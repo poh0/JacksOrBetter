@@ -183,6 +183,8 @@ void Game::selectGambleCard(int index)
 {
     if (mState != GameState::Doubling || index < 1 || index > 4) return;
 
+    mEventBus.emit(GameEvent::SelectedGambleCard);
+
     // Add slow flip anim (two anims).
     sw::Sprite3d& sprite = mPlayerHand.getCards()[index].getSprite();
     auto anim1 = std::make_unique<Animation>(
@@ -208,15 +210,16 @@ void Game::selectGambleCard(int index)
     anim2->setCallback([this, index]() {
         auto& hand = mPlayerHand.getCards();
         GameEvent event;
+        GameState state;
         if (hand[0] < hand[index]) {
-            this->mState = GameState::DoubleSuccess;
+            state = GameState::DoubleSuccess;
             mCurrentWin *= 2;
             event = GameEvent::DoubleSuccess;
         } else if (hand[0] > hand[index]) {
-            this->mState = GameState::DoubleFail;
+            state = GameState::DoubleFail;
             event = GameEvent::DoubleFailed;
         } else {
-            this->mState = GameState::DoubleSuccess;
+            state = GameState::DoubleSuccess;
 
             // Temporarily treat tie as a success without incrementing currentWin
             event = GameEvent::DoubleSuccess;
@@ -239,7 +242,8 @@ void Game::selectGambleCard(int index)
             );
 
             if (!callbackIsSet) {
-                flip->setCallback([this, event]() {
+                flip->setCallback([this, event, state]() {
+                    this->mState = state;
                     mEventBus.emit(event);
                 });
             }
@@ -253,6 +257,13 @@ void Game::selectGambleCard(int index)
 
 void Game::determineGambleResult(int index)
 {
+}
+
+void Game::autoholdValuableCards()
+{
+    for (int index : HandEvaluator::getAutoHoldIndicies(mPlayerHand)) {
+        toggleKeepCard(index);
+    }
 }
 
 void Game::draw(sf::RenderWindow &window)
@@ -398,6 +409,7 @@ void Game::addDealAnimations()
             flipAnimation->setCallback([&, this]() {
                 if (this->mState == GameState::Dealing) {
                     this->mState = GameState::SelectingCardsToKeep;
+                    autoholdValuableCards();
                 } else if (this->mState == GameState::Discarding) {
                     determineWin();
                 }

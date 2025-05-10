@@ -215,6 +215,12 @@ void JacksOrBetter::subscribeEvents()
         }
         mInfoText.setString("No win this time. Choose your BET and press DEAL");
     });
+
+    mEventBus.subscribe(GameEvent::SelectedGambleCard, [this]() {
+        for (auto& btn : mHoldBtn) {
+            btn.setActive(false);
+        }
+    });
 }
 
 void JacksOrBetter::initUI()
@@ -254,7 +260,7 @@ void JacksOrBetter::initUI()
             mGame.getState() == GameState::DoubleFail  ||
             mGame.getState() == GameState::CollectedWin
         ) {
-            if (mGame.getState() == GameState::CollectedWin) mGame.collectWinnings();
+            if (mGame.getState() == GameState::CollectedWin || mGame.getState() == GameState::HandEndedWin) mGame.collectWinnings();
             mGame.dealHand();
             mCreditsText.setString(std::to_string(mGame.getCredits()));
         }
@@ -278,9 +284,7 @@ void JacksOrBetter::initUI()
             if (this->mGame.getState() == GameState::SelectingCardsToKeep) {
                 this->mGame.toggleKeepCard(i);
             } else if (this->mGame.getState() == GameState::Doubling) {
-                for (auto& btn : mHoldBtn) {
-                    btn.setActive(false);
-                }
+
                 this->mGame.selectGambleCard(i);
             }
         });

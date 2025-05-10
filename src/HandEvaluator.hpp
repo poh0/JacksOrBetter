@@ -16,10 +16,10 @@ enum class HandRank {
     RoyalFlush
 };
 
-
 class HandEvaluator {
 public:
     static HandRank evaluateHand(Hand& hand);
+    static std::vector<int> getAutoHoldIndicies(Hand& hand);
 
 private:
     static bool isFlush(Hand& hand);

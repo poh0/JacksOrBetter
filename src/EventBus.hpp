@@ -12,6 +12,7 @@ enum class GameEvent {
     HandEndedWin,
     DoubleSuccess,
     DoubleFailed,
+    SelectedGambleCard
 };
 
 class EventBus {

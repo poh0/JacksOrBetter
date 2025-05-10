@@ -46,6 +46,7 @@ public:
     void dealDoublingHand();
     void selectGambleCard(int index);
     void determineGambleResult(int index);
+    void autoholdValuableCards();
 
     // rendering
     void draw(sf::RenderWindow &window);
